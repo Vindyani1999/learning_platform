@@ -5,6 +5,7 @@ import FallingChips from "./FallingChips";
 import HeroSection from "./HeroSection";
 import CardSection from "./CardSection";
 import LearnVideoSection from "./LearnVideoSection";
+import LessonBar from "./LessonBar";
 
 export function LandingPage() {
   return (
@@ -16,6 +17,7 @@ export function LandingPage() {
       <ImageLeft />
       <FallingChips />
       <ImageRight />
+      <LessonBar />
     </div>
   );
 }
