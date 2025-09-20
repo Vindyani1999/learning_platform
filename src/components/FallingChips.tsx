@@ -1,13 +1,7 @@
-import { useState, useEffect } from "react";
+import { useIsMobile } from "../utils/useIsMobile";
 
 function FallingChips() {
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  const isMobile = windowWidth <= 600;
+  const isMobile = useIsMobile();
   return (
     <div
       style={{

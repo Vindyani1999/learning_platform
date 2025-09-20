@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useIsMobile } from "../utils/useIsMobile";
 
 interface CardProps {
   icon?: React.ReactNode;
@@ -16,13 +17,7 @@ export function Card({
   description,
 }: CardProps) {
   const [hovered, setHovered] = useState(false);
-  const [windowWidth, setWindowWidth] = React.useState(window.innerWidth);
-  React.useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  const isMobile = windowWidth <= 600;
+  const isMobile = useIsMobile();
   return (
     <div
       style={{

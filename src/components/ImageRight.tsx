@@ -1,15 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./Button";
+import { useIsMobile } from "../utils/useIsMobile";
 
 function ImageRight() {
   const [imgVisible, setImgVisible] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const isMobile = useIsMobile();
+
   useEffect(() => {
     const observer = new window.IntersectionObserver(
       (entries) => {
@@ -22,7 +19,7 @@ function ImageRight() {
     if (imgRef.current) observer.observe(imgRef.current);
     return () => observer.disconnect();
   }, []);
-  const isMobile = windowWidth <= 600;
+
   return (
     <div>
       <div

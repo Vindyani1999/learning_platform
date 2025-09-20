@@ -1,4 +1,5 @@
 import React from "react";
+import { useIsMobile } from "../utils/useIsMobile";
 
 interface ButtonProps {
   buttonTitle: string;
@@ -13,25 +14,18 @@ export const Button: React.FC<ButtonProps> = ({
   buttonTitle,
   variant = "default",
 }) => {
-  const [windowWidth, setWindowWidth] = React.useState(window.innerWidth);
-  React.useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const isMobile = windowWidth <= 600;
+  const isMobile = useIsMobile();
   const isLight = variant === "light";
   const baseStyle: React.CSSProperties = {
     position: isMobile ? "static" : "absolute",
     top: isMobile ? undefined : 32,
     right: isMobile ? undefined : 48,
-    width: isMobile ? "90%" : undefined,
-    minWidth: isMobile ? 120 : 140,
+    width: isMobile ? "100%" : undefined,
+    minWidth: isMobile ? undefined : 140,
     maxWidth: isMobile ? 300 : undefined,
     margin: isMobile ? "16px auto" : undefined,
     display: isMobile ? "block" : undefined,
-    padding: isMobile ? "10px 0" : "12px 20px",
+    padding: isMobile ? "10px" : "12px 20px",
     fontSize: isMobile ? 14 : 20,
     fontWeight: 600,
     borderRadius: 32,

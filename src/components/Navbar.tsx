@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button } from "./Button";
+import { useIsMobile } from "../utils/useIsMobile";
 
 export function Navbar() {
   const [visible, setVisible] = useState(true);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       setVisible(window.scrollY < 40);
@@ -16,7 +12,7 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  const isMobile = windowWidth <= 600;
+  const isMobile = useIsMobile();
   return (
     <nav
       style={{
