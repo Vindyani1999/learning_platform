@@ -4,7 +4,12 @@ import { Button } from "./Button";
 function ImageRight() {
   const [imgVisible, setImgVisible] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
-
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   useEffect(() => {
     const observer = new window.IntersectionObserver(
       (entries) => {
@@ -17,7 +22,7 @@ function ImageRight() {
     if (imgRef.current) observer.observe(imgRef.current);
     return () => observer.disconnect();
   }, []);
-
+  const isMobile = windowWidth <= 600;
   return (
     <div>
       <div
@@ -55,24 +60,21 @@ function ImageRight() {
             width: "100%",
             background: "#fff",
             display: "flex",
-            flexDirection: "row",
+            flexDirection: isMobile ? "column" : "row",
             alignItems: "center",
             justifyContent: "center",
-            padding: "3.5rem 0 3.5rem 0",
+            padding: isMobile ? "2rem 0 2rem 0" : "3.5rem 0 3.5rem 0",
             flexWrap: "wrap",
           }}
         >
-          {/* Left: Image (animates in from right) */}
-
-          {/* Right: Text and Button */}
           <div
             style={{
               flex: 1,
-              minWidth: 320,
+              minWidth: isMobile ? 0 : 320,
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
-              padding: "0 2rem",
+              padding: isMobile ? "0 1rem" : "0 2rem",
               textAlign: "center",
             }}
           >
@@ -81,9 +83,9 @@ function ImageRight() {
                 color: "#23283a",
                 fontFamily: "'Lato', Arial, sans-serif",
                 fontWeight: 900,
-                fontSize: 72,
-                marginBottom: 24,
-                letterSpacing: -1,
+                fontSize: isMobile ? 32 : 72,
+                marginBottom: isMobile ? 14 : 24,
+                letterSpacing: isMobile ? -0.5 : -1,
                 textShadow: "0 2px 16px #0001",
                 textAlign: "center",
               }}
@@ -97,7 +99,7 @@ function ImageRight() {
               }
               style={{
                 position: "static",
-                marginTop: 20,
+                marginTop: isMobile ? 12 : 20,
                 display: "inline-block",
                 width: "fit-content",
                 textAlign: "center",
@@ -108,9 +110,10 @@ function ImageRight() {
           </div>
           <div
             style={{
-              flex: 0.75,
+              flex: isMobile ? undefined : 0.75,
               display: "flex",
               justifyContent: "center",
+              marginTop: isMobile ? 18 : 0,
             }}
           >
             <img
@@ -118,22 +121,25 @@ function ImageRight() {
               src="/edu2.png"
               alt="Start Innovation"
               style={{
-                height: 500,
+                height: isMobile ? 180 : 500,
                 maxWidth: "90vw",
                 opacity: imgVisible ? 1 : 0,
-                transform: imgVisible ? "translateX(0)" : "translateX(80px)",
+                transform: imgVisible
+                  ? "translateX(0)"
+                  : isMobile
+                  ? "translateY(40px)"
+                  : "translateX(80px)",
                 transition:
                   "opacity 0.8s cubic-bezier(.4,0,.2,1), transform 0.8s cubic-bezier(.4,0,.2,1)",
+                borderRadius: isMobile ? 18 : 32,
               }}
               draggable={false}
             />
           </div>
         </div>
-        {/* Bottom wave */}
         <svg
           viewBox="0 0 1440 100"
           width="100%"
-          // height="100"
           style={{
             display: "block",
             position: "absolute",

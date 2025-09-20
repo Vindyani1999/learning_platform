@@ -1,11 +1,15 @@
+import { useEffect, useRef, useState } from "react";
+import { Button } from "./Button";
 
-import  { useEffect, useRef, useState } from 'react';
-import { Button } from './Button';
-
-function Temp() {
+function ImageLeft() {
   const [imgVisible, setImgVisible] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
-
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   useEffect(() => {
     const observer = new window.IntersectionObserver(
       (entries) => {
@@ -18,119 +22,157 @@ function Temp() {
     if (imgRef.current) observer.observe(imgRef.current);
     return () => observer.disconnect();
   }, []);
-
+  const isMobile = windowWidth <= 600;
   return (
     <div>
       <div
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  background: "transparent",
-                  margin: 0,
-                  padding: 0,
-                }}
-              >
-                {/* Top wave */}
-                <svg
-                  viewBox="0 0 1440 100"
-                  width="100%"
-                  height="100"
-                  style={{
-                    display: "block",
-                    position: "absolute",
-                    top: -70,
-                    left: 0,
-                    zIndex: 10,
-                  }}
-                  preserveAspectRatio="none"
-                >
-                  <path
-                    fill="#fff"
-                    d="M0,60 C360,100 1080,0 1440,60 L1440,100 L0,100 Z"
-                  />
-                </svg>
-                <div
-                  style={{
-                    position: "relative",
-                    zIndex: 2,
-                    width: "100%",
-                    // minHeight: 420,
-                    background: "#fff",
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "3.5rem 0 3.5rem 0",
-                    // gap: 18,
-                    flexWrap: "wrap",
-                  }}
-                >
+        style={{
+          position: "relative",
+          width: "100%",
+          background: "transparent",
+          margin: 0,
+          padding: 0,
+        }}
+      >
+        <svg
+          viewBox="0 0 1440 100"
+          width="100%"
+          height="100"
+          style={{
+            display: "block",
+            position: "absolute",
+            top: -70,
+            left: 0,
+            zIndex: 10,
+          }}
+          preserveAspectRatio="none"
+        >
+          <path
+            fill="#fff"
+            d="M0,60 C360,100 1080,0 1440,60 L1440,100 L0,100 Z"
+          />
+        </svg>
+        <div
+          style={{
+            position: "relative",
+            zIndex: 2,
+            width: "100%",
+            background: "#fff",
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: isMobile ? "2rem 0 2rem 0" : "3.5rem 0 3.5rem 0",
+            flexWrap: "wrap",
+          }}
+        >
+          <div
+            style={{
+              flex: isMobile ? undefined : 0.75,
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: isMobile ? 18 : 0,
+            }}
+          >
+            <img
+              ref={imgRef}
+              src="/cta-education.png"
+              alt="Start Innovation"
+              style={{
+                width: isMobile ? 220 : 500,
+                maxWidth: "90vw",
+                opacity: imgVisible ? 1 : 0,
+                transform: imgVisible
+                  ? "translateX(0)"
+                  : isMobile
+                  ? "translateY(-40px)"
+                  : "translateX(-80px)",
+                transition:
+                  "opacity 0.8s cubic-bezier(.4,0,.2,1), transform 0.8s cubic-bezier(.4,0,.2,1)",
+                borderRadius: isMobile ? 18 : 32,
+              }}
+              draggable={false}
+            />
+          </div>
 
-                  {/* Left: Image with animation */}
-                  <div style={{ flex: 0.75, display: "flex", justifyContent: "center" }}>
-                    <img
-                      ref={imgRef}
-                      src="/cta-education.png"
-                      alt="Start Innovation"
-                      style={{
-                        width: 500,
-                        maxWidth: "90vw",
-                        opacity: imgVisible ? 1 : 0,
-                        transform: imgVisible ? "translateX(0)" : "translateX(-80px)",
-                        transition: "opacity 0.8s cubic-bezier(.4,0,.2,1), transform 0.8s cubic-bezier(.4,0,.2,1)",
-                      }}
-                      draggable={false}
-                    />
-                  </div>
-        
-                  {/* Right: Text and Button */}
-                  <div
-                    style={{
-                      flex: 1,
-                      minWidth: 320,
-                      display: "flex",
-                      flexDirection: "column",
-                      // alignItems: "flex-start",
-                      justifyContent: "center",
-                      padding: "0 2rem",
-                      textAlign: "center",
-                    }}
-                  >
-                    {/* <img src="/logo-black.png" alt="LearnSpot Logo" width={200} /> */}
-                    <h2
-                      style={{
-                        color: "#23283a",
-                        fontFamily: "'Lato', Arial, sans-serif",
-                        fontWeight: 900,
-                        fontSize: 72,
-                        marginBottom: 24,
-                        letterSpacing: -1,
-                        textShadow: "0 2px 16px #0001",
-                        textAlign: "center",
-                      }}
-                    >
-                      Start Innovation of Education Today
-                    </h2>
-                    <Button
-                      buttonTitle="Get Started"
-                      onClick={() =>
-                        window.scrollTo({ top: window.innerHeight, behavior: "smooth" })
-                      }
-                      style={{
-                        position: "static",
-                        marginTop: 20,
-                        display: "inline-block",
-                        width: "fit-content",
-                        textAlign: "center",
-                        alignSelf: "center",
-                      }}
-                      variant="light"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div
+            style={{
+              flex: 1,
+              minWidth: isMobile ? 0 : 320,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              padding: isMobile ? "0 1rem" : "0 2rem",
+              textAlign: "center",
+            }}
+          >
+            <h2
+              style={{
+                color: "#23283a",
+                fontFamily: "'Lato', Arial, sans-serif",
+                fontWeight: 900,
+                fontSize: isMobile ? 32 : 72,
+                marginBottom: isMobile ? 14 : 24,
+                letterSpacing: isMobile ? -0.5 : -1,
+                textShadow: "0 2px 16px #0001",
+                textAlign: "center",
+              }}
+            >
+              Start Innovation of Education Today
+            </h2>
+            <Button
+              buttonTitle="Get Started"
+              onClick={() =>
+                window.scrollTo({ top: window.innerHeight, behavior: "smooth" })
+              }
+              style={{
+                position: "static",
+                marginTop: isMobile ? 12 : 20,
+                display: "inline-block",
+                width: "fit-content",
+                textAlign: "center",
+                alignSelf: "center",
+              }}
+              variant="light"
+            />
+          </div>
+        </div>
+
+        {/* Bottom wave */}
+        <svg
+          viewBox="0 0 1440 120"
+          width="100%"
+          style={{
+            display: "block",
+            position: "absolute",
+            bottom: isMobile ? -20 : -50,
+            left: 0,
+            zIndex: 10,
+            rotate: "180deg",
+          }}
+          preserveAspectRatio="none"
+        >
+          {/* Main wave */}
+          <path
+            fill="#fff"
+            d="M0,60 C360,0 1080,100 1440,60 L1440,120 L0,120 Z"
+          />
+          {/* Extra accent wave 1 */}
+          <path
+            fill="#ede7f6"
+            fillOpacity="0.5"
+            d="M0,80 C400,40 1040,120 1440,80 L1440,120 L0,120 Z"
+          />
+          {/* Extra accent wave 2 */}
+          <path
+            fill="#7c4dff"
+            fillOpacity="0.13"
+            d="M0,100 C500,60 900,140 1440,100 L1440,120 L0,120 Z"
+          />
+        </svg>
+      </div>
+    </div>
   );
 }
 
-export default Temp;
+export default ImageLeft;
