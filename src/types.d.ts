@@ -1,4 +1,3 @@
-// Centralized type definitions for the educational platform
 export interface Lesson {
   id: string;
   title: string;
@@ -15,4 +14,14 @@ export interface Module {
 
 export interface UserProgress {
   [lessonId: string]: boolean;
+}
+
+// src/spline-viewer.d.ts
+
+declare module "react" {
+  namespace JSX {
+    interface IntrinsicElements {
+      "spline-viewer": React.HTMLAttributes<HTMLElement> & { url?: string };
+    }
+  }
 }

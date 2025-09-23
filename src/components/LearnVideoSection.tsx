@@ -11,7 +11,7 @@ function LearnVideoSection() {
           background: "transparent",
         }}
       >
-        <svg
+        {/* <svg
           viewBox="0 0 1440 120"
           width="100%"
           height="120"
@@ -28,7 +28,7 @@ function LearnVideoSection() {
             fill="#fff"
             d="M0,60 C240,0 480,120 720,60 C960,0 1200,120 1440,60 L1440,120 L0,120 Z"
           />
-        </svg>
+        </svg> */}
         <div
           style={{
             position: "relative",
@@ -47,7 +47,7 @@ function LearnVideoSection() {
             muted
             playsInline
             style={{
-              width: isMobile ? "98vw" : "80vw",
+              width: isMobile ? "98vw" : "70vw",
 
               objectFit: "cover",
               zIndex: 2,
@@ -61,7 +61,7 @@ function LearnVideoSection() {
             <source src="/learn.webm" type="video/webm" />
           </video>
         </div>
-        <svg
+        {/* <svg
           viewBox="0 0 1440 120"
           width="100%"
           height="120"
@@ -79,7 +79,7 @@ function LearnVideoSection() {
             fill="#fff"
             d="M0,60 C240,120 480,0 720,60 C960,120 1200,0 1440,60 L1440,120 L0,120 Z"
           />
-        </svg>
+        </svg> */}
       </div>
     </div>
   );

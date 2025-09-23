@@ -31,7 +31,7 @@ function ImageRight() {
           padding: 0,
         }}
       >
-        {/* Top wave */}
+        {/* Top wave
         <svg
           viewBox="0 0 1440 100"
           width="100%"
@@ -49,7 +49,7 @@ function ImageRight() {
             fill="#fff"
             d="M0,60 C360,100 1080,0 1440,60 L1440,100 L0,100 Z"
           />
-        </svg>
+        </svg> */}
         <div
           style={{
             position: "relative",
@@ -134,7 +134,7 @@ function ImageRight() {
             />
           </div>
         </div>
-        <svg
+        {/* <svg
           viewBox="0 0 1440 100"
           width="100%"
           style={{
@@ -151,7 +151,7 @@ function ImageRight() {
             fill="#fff"
             d="M0,60 C360,0 1080,100 1440,60 L1440,100 L0,100 Z"
           />
-        </svg>
+        </svg> */}
       </div>
     </div>
   );

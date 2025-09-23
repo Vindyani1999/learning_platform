@@ -13,11 +13,12 @@ export function LandingPage() {
       <Navbar />
       <HeroSection />
       <LearnVideoSection />
-      <CardSection />
+      <LessonBar />
+
       <ImageLeft />
       <FallingChips />
       <ImageRight />
-      <LessonBar />
+      <CardSection />
     </div>
   );
 }

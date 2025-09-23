@@ -19,7 +19,7 @@ function FallingChips() {
           fontFamily: "'Lato', Arial, sans-serif",
           fontWeight: 900,
           fontSize: isMobile ? 22 : 36,
-          paddingTop: isMobile ? 30 : 120,
+          paddingTop: 30,
           letterSpacing: isMobile ? -0.5 : -1,
           textShadow: "0 2px 16px #0007",
           paddingLeft: isMobile ? 20 : 0,

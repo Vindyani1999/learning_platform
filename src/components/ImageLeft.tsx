@@ -33,21 +33,19 @@ function ImageLeft() {
         <svg
           viewBox="0 0 1440 100"
           width="100%"
-          height="100"
+          height="50"
           style={{
             display: "block",
             position: "absolute",
-            top: -70,
+            top: -50,
             left: 0,
             zIndex: 10,
           }}
           preserveAspectRatio="none"
         >
-          <path
-            fill="#fff"
-            d="M0,60 C360,100 1080,0 1440,60 L1440,100 L0,100 Z"
-          />
+          <path fill="#fff" d="M0,0 L1440,0 L1440,100 L0,100 Z" />
         </svg>
+
         <div
           style={{
             position: "relative",
@@ -58,7 +56,7 @@ function ImageLeft() {
             flexDirection: isMobile ? "column" : "row",
             alignItems: "center",
             justifyContent: "center",
-            padding: isMobile ? "2rem 0 2rem 0" : "3.5rem 0 3.5rem 0",
+            padding: isMobile ? "2rem 0 2rem 0" : "0 0 2rem 0",
             flexWrap: "wrap",
           }}
         >
@@ -133,39 +131,6 @@ function ImageLeft() {
             />
           </div>
         </div>
-
-        {/* Bottom wave */}
-        <svg
-          viewBox="0 0 1440 120"
-          width="100%"
-          style={{
-            display: "block",
-            position: "absolute",
-            bottom: isMobile ? -20 : -50,
-            left: 0,
-            zIndex: 10,
-            rotate: "180deg",
-          }}
-          preserveAspectRatio="none"
-        >
-          {/* Main wave */}
-          <path
-            fill="#fff"
-            d="M0,60 C360,0 1080,100 1440,60 L1440,120 L0,120 Z"
-          />
-          {/* Extra accent wave 1 */}
-          <path
-            fill="#ede7f6"
-            fillOpacity="0.5"
-            d="M0,80 C400,40 1040,120 1440,80 L1440,120 L0,120 Z"
-          />
-          {/* Extra accent wave 2 */}
-          <path
-            fill="#7c4dff"
-            fillOpacity="0.13"
-            d="M0,100 C500,60 900,140 1440,100 L1440,120 L0,120 Z"
-          />
-        </svg>
       </div>
     </div>
   );
