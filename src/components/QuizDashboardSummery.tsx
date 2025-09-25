@@ -1,13 +1,3 @@
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
-
 export function QuizDashboardSummary({ dark }: { dark: boolean }) {
   let quizAttempts = 0;
   let quizHighScore = 0;
