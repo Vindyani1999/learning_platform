@@ -35,12 +35,17 @@ function Achivements({ dark }: AchivementsProps) {
   let quizPerfect = false;
   try {
     const progressRaw = localStorage.getItem("quizProgress");
-    let progress: Record<string, { score: number; total: number; date: string }> = {};
+    let progress: Record<
+      string,
+      { score: number; total: number; date: string }
+    > = {};
     if (progressRaw) progress = JSON.parse(progressRaw);
     const scores = Object.values(progress).map((q) => q.score);
     quizAttempts = scores.length;
     quizHighScore = scores.length > 0 ? Math.max(...scores) : 0;
-    quizPerfect = Object.values(progress).some((q) => q.score === q.total && q.total > 0);
+    quizPerfect = Object.values(progress).some(
+      (q) => q.score === q.total && q.total > 0
+    );
   } catch {
     // ignore
   }
