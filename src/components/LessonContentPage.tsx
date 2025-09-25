@@ -1,147 +1,345 @@
-import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import ProgressBar from "./ProgressBar";
 import { LessonLayout } from "./LessonLayout";
+import { LessonSidebar } from "./LessonSidebar";
+import type { Topic } from "./LessonSidebar";
+import { lessonTopics } from "../utils/lessonTopics";
+import { lessonContents, type ContentBlock } from "../utils/lessonContents";
 
-// Placeholder data for headings and content
-const headings = [
-  { id: "intro", label: "Introduction" },
-  { id: "part1", label: "Part 1: Basics" },
-  { id: "part2", label: "Part 2: Advanced" },
-  { id: "summary", label: "Summary" },
-];
+interface LessonContentPageProps {
+  dark: boolean;
+  lessonId?: string;
+}
 
-export function LessonContentPage() {
-  const { lessonId } = useParams();
-  const [dark, setDark] = useState(false);
-  // Placeholder for current section
-  const [section, setSection] = useState(0);
+export function LessonContentPage({
+  dark,
+  lessonId: propLessonId,
+}: LessonContentPageProps) {
+  const params = useParams<{ lessonId: string }>();
+  const lessonId = propLessonId || params.lessonId;
+  const topics: Topic[] = lessonTopics[lessonId!] || [];
+  const navigate = useNavigate();
+
+  const getDefaultSelection = () => {
+    if (!topics.length) return { topic: "", sub: undefined };
+    const first = topics[0];
+    if (first.subtopics?.length)
+      return { topic: first.id, sub: first.subtopics[0].id };
+    return { topic: first.id, sub: undefined };
+  };
+
+  const [{ topic: defaultTopic, sub: defaultSub }] =
+    useState(getDefaultSelection);
+  const [selectedTopic, setSelectedTopic] = useState<string>(defaultTopic);
+  const [selectedSubtopic, setSelectedSubtopic] = useState<string | undefined>(
+    defaultSub
+  );
+
+  // Progress tracking
+  const [readItems, setReadItems] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!lessonId) return;
+    const stored = localStorage.getItem(`progress_${lessonId}`);
+    if (stored) setReadItems(JSON.parse(stored));
+  }, [lessonId]);
+
+  useEffect(() => {
+    if (!lessonId) return;
+    const id = selectedSubtopic
+      ? `${selectedTopic}__${selectedSubtopic}`
+      : selectedTopic;
+    if (!readItems.includes(id)) {
+      const updated = [...readItems, id];
+      setReadItems(updated);
+      localStorage.setItem(`progress_${lessonId}`, JSON.stringify(updated));
+    }
+  }, [selectedTopic, selectedSubtopic]);
+
+  useEffect(() => {
+    if (!topics.length) return;
+    const exists = topics.some((t) => t.id === selectedTopic);
+    if (!exists) {
+      const first = topics[0];
+      setSelectedTopic(first.id);
+      setSelectedSubtopic(first.subtopics?.[0]?.id);
+    }
+  }, [topics, selectedTopic]);
+
+  const currentTopic = topics.find((t) => t.id === selectedTopic);
+  const currentSub = currentTopic?.subtopics?.find(
+    (s) => s.id === selectedSubtopic
+  );
+  const contentKey = selectedSubtopic
+    ? `${selectedTopic}__${selectedSubtopic}`
+    : selectedTopic;
+  const content: ContentBlock[] =
+    (lessonId && lessonContents[lessonId]?.[contentKey]) || [];
+
+  const allIds: string[] = [];
+  topics.forEach((t) => {
+    if (t.subtopics?.length) {
+      t.subtopics.forEach((s) => allIds.push(`${t.id}__${s.id}`));
+    } else {
+      allIds.push(t.id);
+    }
+  });
+  const currentIdx = allIds.indexOf(contentKey);
+
+  const isLessonComplete = readItems.length === allIds.length;
+
+  const handleMarkComplete = () => {
+    if (!lessonId) return;
+
+    // Remove from startedLessons
+    const startedRaw = localStorage.getItem("startedLessons");
+    let started: string[] = [];
+    try {
+      started = startedRaw ? JSON.parse(startedRaw) : [];
+      if (!Array.isArray(started)) started = [];
+    } catch {
+      started = [];
+    }
+
+    started = started.filter((id) => id === String(id) && id !== lessonId); // ensure string comparison
+    localStorage.setItem("startedLessons", JSON.stringify(started));
+
+    // Add to completedLessons
+    const completedRaw = localStorage.getItem("completedLessons");
+    let completed: string[] = [];
+    try {
+      completed = completedRaw ? JSON.parse(completedRaw) : [];
+      if (!Array.isArray(completed)) completed = [];
+    } catch {
+      completed = [];
+    }
+
+    if (!completed.includes(lessonId)) {
+      completed.push(lessonId);
+      localStorage.setItem("completedLessons", JSON.stringify(completed));
+    }
+
+    navigate("/home/dashboard");
+  };
+
+  const renderContentBlock = (block: ContentBlock, index: number) => {
+    switch (block.type) {
+      case "paragraph":
+        return (
+          <p
+            key={index}
+            style={{
+              marginBottom: 18,
+              fontSize: 18,
+              lineHeight: 1.6,
+              color: dark ? "#f8f5f0" : "#23283a",
+              fontFamily: "'Lato', Arial, sans-serif",
+            }}
+          >
+            {block.text}
+          </p>
+        );
+      case "code":
+        return (
+          <pre
+            key={index}
+            style={{
+              background: dark ? "#2d2d2d" : "#f4f4f4",
+              padding: "12px 16px",
+              borderRadius: 8,
+              marginBottom: 18,
+              overflowX: "auto",
+            }}
+          >
+            <code>{block.code}</code>
+          </pre>
+        );
+      case "image":
+        return (
+          <div key={index} style={{ marginBottom: 18, textAlign: "center" }}>
+            <img
+              src={block.src}
+              alt={block.alt}
+              style={{
+                maxWidth: "40%",
+                borderRadius: 12,
+                // boxShadow: "0 2px 12px #0002",
+              }}
+            />
+            {block.alt && (
+              <p style={{ fontSize: 14, color: "#777", marginTop: 6 }}>
+                {block.alt}
+              </p>
+            )}
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  // Ref for scrolling to top
+  const contentRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  }, [currentIdx]);
 
   return (
     <LessonLayout
       dark={dark}
-      onToggleTheme={() => setDark((d) => !d)}
       sidebar={
-        <nav>
-          <h3 style={{ fontWeight: 900, fontSize: 20, marginBottom: 18 }}>
-            Contents
-          </h3>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            {headings.map((h, i) => (
-              <li key={h.id}>
-                <button
-                  style={{
-                    background:
-                      i === section ? (dark ? "#7c4dff" : "#e0d7ff") : "none",
-                    color:
-                      i === section
-                        ? dark
-                          ? "#fff"
-                          : "#23283a"
-                        : dark
-                        ? "#f8f5f0"
-                        : "#23283a",
-                    border: "none",
-                    borderRadius: 8,
-                    padding: "8px 14px",
-                    marginBottom: 6,
-                    width: "100%",
-                    textAlign: "left",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                  onClick={() => setSection(i)}
-                >
-                  {h.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <LessonSidebar
+          topics={topics}
+          selectedTopicId={selectedTopic}
+          selectedSubtopicId={selectedSubtopic}
+          onSelect={(topicId, subId) => {
+            setSelectedTopic(topicId);
+            setSelectedSubtopic(subId);
+          }}
+          dark={dark}
+          lessonId={lessonId!}
+        />
       }
       content={
         <div
+          ref={contentRef}
           style={{
-            maxWidth: 600,
-            width: "100%",
-            background: dark ? "#23283a" : "#fff",
-            borderRadius: 18,
-            boxShadow: "0 2px 16px #0002",
+            width: "90%",
+            // background: dark ? "#23283a" : "#fff",
+            // borderRadius: 18,
+            // boxShadow: "0 2px 16px #0002",
             padding: 32,
-            minHeight: 320,
+            // minHeight: "100vh",
+            position: "relative",
+            justifyContent: "center",
+            marginRight: "15%",
+            marginTop: "3%",
+            marginLeft: "3%",
           }}
         >
-          <h2 style={{ fontWeight: 900, fontSize: 28, marginBottom: 18 }}>
-            {headings[section].label}
+          <ProgressBar current={readItems.length} total={allIds.length} />
+
+          <h2
+            style={{
+              fontWeight: 900,
+              fontSize: 28,
+              marginBottom: 18,
+              fontFamily: "'Lato', Arial, sans-serif",
+            }}
+          >
+            {currentSub?.label || currentTopic?.label}
           </h2>
-          <div
+
+          {/* <div
             style={{
               color: dark ? "#f8f5f0" : "#23283a",
               fontSize: 18,
               marginBottom: 32,
+              fontFamily: "'Lato', Arial, sans-serif",
+              fontWeight: 100,
+              lineHeight: 1.6,
+              whiteSpace: "pre-line",
             }}
           >
-            Content for <b>{headings[section].label}</b> of lesson{" "}
-            <b>{lessonId}</b> goes here.
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <button
-              onClick={() => setSection((s) => Math.max(0, s - 1))}
-              disabled={section === 0}
-              style={{
-                padding: "10px 22px",
-                borderRadius: 12,
-                border: "none",
-                background: section === 0 ? "#ccc" : "#7c4dff",
-                color: "#fff",
-                fontWeight: 700,
-                cursor: section === 0 ? "not-allowed" : "pointer",
-              }}
-            >
-              Back
-            </button>
-            <button
-              onClick={() =>
-                setSection((s) => Math.min(headings.length - 1, s + 1))
-              }
-              disabled={section === headings.length - 1}
-              style={{
-                padding: "10px 22px",
-                borderRadius: 12,
-                border: "none",
-                background:
-                  section === headings.length - 1 ? "#ccc" : "#7c4dff",
-                color: "#fff",
-                fontWeight: 700,
-                cursor:
-                  section === headings.length - 1 ? "not-allowed" : "pointer",
-              }}
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      }
-      rightbar={
-        <div>
-          <h3 style={{ fontWeight: 900, fontSize: 20, marginBottom: 18 }}>
-            Achievements
-          </h3>
-          <div style={{ marginBottom: 18 }}>
-            Badges, progress, etc. (placeholder)
-          </div>
-          <button
+            {content}
+          </div> */}
+
+          <div
             style={{
-              padding: "8px 18px",
-              borderRadius: 20,
-              border: "none",
-              background: "#7c4dff",
-              color: "#fff",
-              fontWeight: 700,
-              cursor: "pointer",
+              color: dark ? "#f8f5f0" : "#5d5f67",
+              fontSize: 18,
+              marginBottom: 32,
+              fontFamily: "'Lato', Arial, sans-serif",
+              fontWeight: 100,
+              lineHeight: 1.6,
+              whiteSpace: "pre-line",
+              letterSpacing: 0.5,
             }}
           >
-            Expand
-          </button>
+            {content.map((block, i) => renderContentBlock(block, i))}
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: 32,
+            }}
+          >
+            <button
+              onClick={() => {
+                if (currentIdx > 0) {
+                  const prevId = allIds[currentIdx - 1];
+                  const [topicId, subId] = prevId.split("__");
+                  setSelectedTopic(topicId);
+                  setSelectedSubtopic(subId);
+                }
+              }}
+              disabled={currentIdx <= 0}
+              style={{
+                padding: "10px 26px",
+                borderRadius: 24,
+                border: "none",
+                background: currentIdx <= 0 ? "#ccc" : "#e0d7ff",
+                color: currentIdx <= 0 ? "#888" : "#7c4dff",
+                fontWeight: 800,
+                fontSize: 16,
+                cursor: currentIdx <= 0 ? "not-allowed" : "pointer",
+                outline: "none",
+              }}
+            >
+              ← Back
+            </button>
+
+            {isLessonComplete ? (
+              <button
+                onClick={handleMarkComplete}
+                style={{
+                  padding: "10px 26px",
+                  borderRadius: 24,
+                  border: "none",
+                  background: "#28a745",
+                  color: "#fff",
+                  fontWeight: 800,
+                  fontSize: 16,
+                  cursor: "pointer",
+                  outline: "none",
+                }}
+              >
+                Mark Complete ✅
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  if (currentIdx < allIds.length - 1) {
+                    const nextId = allIds[currentIdx + 1];
+                    const [topicId, subId] = nextId.split("__");
+                    setSelectedTopic(topicId);
+                    setSelectedSubtopic(subId);
+                  }
+                }}
+                disabled={currentIdx >= allIds.length - 1}
+                style={{
+                  padding: "10px 26px",
+                  borderRadius: 24,
+                  border: "none",
+                  background:
+                    currentIdx >= allIds.length - 1 ? "#ccc" : "#7c4dff",
+                  color: "#fff",
+                  fontWeight: 800,
+                  fontSize: 16,
+                  cursor:
+                    currentIdx >= allIds.length - 1 ? "not-allowed" : "pointer",
+                  outline: "none",
+                }}
+              >
+                Next →
+              </button>
+            )}
+          </div>
         </div>
       }
     />

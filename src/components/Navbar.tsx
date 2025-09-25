@@ -49,10 +49,7 @@ export function Navbar() {
         role="button"
         aria-label="Go to home"
       />
-      <Button
-        onClick={() => navigate("/lessons")}
-        buttonTitle="Start Learning"
-      />
+      <Button onClick={() => navigate("/home")} buttonTitle="Start Learning" />
     </nav>
   );
 }

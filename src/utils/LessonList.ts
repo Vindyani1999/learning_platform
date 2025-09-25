@@ -3,6 +3,7 @@ export interface Lesson {
   name: string;
   image: string;
   description?: string;
+  level?: string;
 }
 
 export const lessonList: Lesson[] = [
@@ -12,6 +13,7 @@ export const lessonList: Lesson[] = [
     image: "/react.png",
     description:
       "Learn the basics of ReactJS, a popular JavaScript library for building user interfaces.",
+    level: "Beginner",
   },
   {
     id: "lesson-2",
@@ -19,6 +21,7 @@ export const lessonList: Lesson[] = [
     image: "/ts.png",
     description:
       "Discover TypeScript, a superset of JavaScript that adds static types.",
+    level: "Intermediate",
   },
   {
     id: "lesson-3",
@@ -26,6 +29,7 @@ export const lessonList: Lesson[] = [
     image: "/python.jpeg",
     description:
       "Learn Python language for web development, data analysis, and more.",
+    level: "Advanced",
   },
   {
     id: "lesson-4",
@@ -33,12 +37,14 @@ export const lessonList: Lesson[] = [
     image: "/ml.png",
     description:
       "Explore the fundamentals of Machine Learning and its applications.",
+    level: "Advanced",
   },
   {
     id: "lesson-5",
     name: "JavaScript",
     image: "/js.png",
     description: "Dive into JavaScript, the programming language of the web.",
+    level: "Beginner",
   },
   {
     id: "lesson-6",
@@ -46,6 +52,7 @@ export const lessonList: Lesson[] = [
     image: "/fp.png",
     description:
       "Understand the principles of Functional Programming and how to apply them.",
+    level: "Intermediate",
   },
   {
     id: "lesson-7",
@@ -53,6 +60,7 @@ export const lessonList: Lesson[] = [
     image: "/bigdata.jpeg",
     description:
       "Get introduced to the basic Big Data concepts and technologies.",
+    level: "Advanced",
   },
   {
     id: "lesson-8",
@@ -60,6 +68,7 @@ export const lessonList: Lesson[] = [
     image: "/is.png",
     description:
       "Learn the basics of Information Security and best practices to protect data.",
+    level: "Intermediate",
   },
   {
     id: "lesson-9",
@@ -67,6 +76,7 @@ export const lessonList: Lesson[] = [
     image: "/java.png",
     description:
       "Start with Java, a widely-used programming language for building cross-platform applications.",
+    level: "Beginner",
   },
 ];
 

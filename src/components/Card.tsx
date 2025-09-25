@@ -6,7 +6,7 @@ interface CardProps {
   gifSrc?: string;
   gifPreviewSrc?: string;
   title: string;
-  description: string;
+  description?: string;
 }
 
 export function Card({

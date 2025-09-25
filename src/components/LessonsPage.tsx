@@ -1,231 +1,376 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Grid from "@mui/material/Grid";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { lessonList } from "../utils/LessonList";
-import { useIsMobile } from "../utils/useIsMobile";
+import { lessonTopics } from "../utils/lessonTopics";
+import LessonQuizTemplate from "./LessonQuizTemplate";
+import Popup from "reactjs-popup";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-function LessonsPage() {
-  const [search, setSearch] = useState("");
-  const [dark, setDark] = useState(false);
+interface LessonsPageProps {
+  dark: boolean;
+  onLessonSelect?: (lessonId: string) => void;
+}
 
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setDark(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setDark(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  const filtered = lessonList.filter((l) =>
-    l.name.toLowerCase().includes(search.toLowerCase())
-  );
+// LessonsList: shows all lessons using LessonQuizTemplate
+function LessonsList({ dark, onLessonSelect }: LessonsPageProps) {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
-
-  // theme colors
-  const bg = dark ? "#23272e" : "#f8f5f0";
-  const cardBg = dark
-    ? "linear-gradient(135deg, #23283a 60%, #2d3650 100%)"
-    : "linear-gradient(135deg, #f5f8ff 60%, #e3eaff 100%)";
-  const textColor = dark ? "#f8f5f0" : "#23283a";
-  const inputBg = dark ? "#23283a" : "#fff";
-  const inputBorder = dark ? "#444a55" : "#ccc";
-  const inputText = dark ? "#f8f5f0" : "#23283a";
-  const inputShadow = dark ? "0 2px 8px #0004" : "0 2px 8px #0001";
-  const noLessonColor = dark ? "#888" : "#aaa";
+  const [infoOpen, setInfoOpen] = useState<string | null>(null);
+  // Completed lesson IDs
+  const completedIds: string[] = JSON.parse(
+    localStorage.getItem("completedLessons") || "[]"
+  ).map((l: any) => (typeof l === "string" ? l : l.id));
 
   return (
-    <div style={{ minHeight: "100vh", background: bg }}>
-      {/* Top bar */}
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          height: 220,
-          marginBottom: 48,
-          overflow: "hidden",
-          background: dark
-            ? "linear-gradient(135deg, #23283a 60%, #23272e 100%)"
-            : "linear-gradient(135deg, #eaf0ff 60%, #f8f5f0 100%)",
-        }}
-      >
-        <img
-          src="/grp.jpg"
-          alt="Explore Lessons"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            opacity: 0.18,
-            position: "absolute",
-            left: 0,
-            top: 0,
-            zIndex: 1,
-            pointerEvents: "none",
-            userSelect: "none",
-          }}
-          draggable={false}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 2,
-            padding: "0 16px",
-          }}
-        >
-          <h1
+    <LessonQuizTemplate
+      items={lessonList}
+      title="Explore Lessons"
+      searchPlaceholder="Search lessons..."
+      dark={dark}
+      onItemSelect={(lesson) => {
+        localStorage.setItem(
+          "currentLesson",
+          JSON.stringify({
+            id: lesson.id,
+            name: lesson.name,
+            image: lesson.image,
+            description: lesson.description,
+            level: lesson.level,
+          })
+        );
+        const startedRaw = localStorage.getItem("startedLessons");
+        let startedArr = [];
+        try {
+          startedArr = startedRaw ? JSON.parse(startedRaw) : [];
+        } catch {
+          startedArr = [];
+        }
+        if (!startedArr.some((l: any) => l.id === lesson.id)) {
+          startedArr.push({
+            id: lesson.id,
+            name: lesson.name,
+            image: lesson.image,
+            description: lesson.description,
+            level: lesson.level,
+          });
+          localStorage.setItem("startedLessons", JSON.stringify(startedArr));
+        }
+        if (onLessonSelect) {
+          onLessonSelect(lesson.id);
+        } else {
+          navigate(`/lessons/${lesson.id}`);
+        }
+      }}
+      renderItem={(lesson, { dark, onSelect }) => {
+        const isCompleted = completedIds.includes(lesson.id);
+        return (
+          <div
             style={{
-              textAlign: "center",
-              fontFamily: "Lato, Arial, sans-serif",
-              fontWeight: 900,
-              fontSize: 32,
-              marginBottom: 18,
-              color: textColor,
-              textShadow: dark
-                ? "0 2px 12px #000a, 0 1px 0 #fff2"
-                : "0 2px 12px #fff8, 0 1px 0 #0001",
-              letterSpacing: 1.2,
+              position: "relative",
+              background: dark
+                ? "linear-gradient(135deg, #23283a 60%, #2d3650 100%)"
+                : "linear-gradient(135deg, #f5f8ff 60%, #e3eaff 100%)",
+              borderRadius: 22,
+              boxShadow: dark
+                ? "0 8px 32px #000a, 0 1.5px 0 #fff2"
+                : "0 8px 32px #bcd6ff44, 0 1.5px 0 #0001",
+              padding: 20,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              cursor: "pointer",
             }}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") onSelect();
+            }}
+            aria-label={`Open lesson ${lesson.name}`}
           >
-            Explore Lessons
-          </h1>
-          <input
-            type="text"
-            placeholder="Search lessons..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{
-              fontSize: 16,
-              padding: "10px 16px",
-              borderRadius: 24,
-              border: `1px solid ${inputBorder}`,
-              outline: "none",
-              width: "100%",
-              maxWidth: 360,
-              boxShadow: inputShadow,
-              background: inputBg,
-              color: inputText,
-              transition: "background 0.3s, color 0.3s, border 0.3s",
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Lessons grid */}
-      <Grid
-        container
-        spacing={3}
-        justifyContent="flex-start" // ⬅️ changed here
-        alignItems="flex-start"
-        sx={{
-          px: { lg: 8, md: 4, sm: 4, xs: 2 }, // responsive padding
-          pb: 4,
-          margin: isMobile ? "0 50px" : "0 200px",
-        }}
-      >
-        {filtered.map((lesson, idx) => (
-          <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }} key={lesson.id}>
-            <div
-              onClick={() => navigate(`/lessons/${lesson.id}`)}
-              style={{
-                background: cardBg,
-                borderRadius: 22,
-                boxShadow: dark
-                  ? "0 8px 32px #000a, 0 1.5px 0 #fff2"
-                  : "0 8px 32px #bcd6ff44, 0 1.5px 0 #0001",
-                padding: 20,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                transition:
-                  "transform 0.2s, box-shadow 0.3s, background 0.3s, color 0.3s, border 0.3s",
-                border: dark ? "1.5px solid #3a4666" : "1.5px solid #b3c6f7",
-                cursor: "pointer",
-                color: textColor,
-                opacity: 0,
-                transform: "translateY(40px)",
-                animation: `fadeInUp 0.7s cubic-bezier(.4,0,.2,1) forwards`,
-                animationDelay: `${0.12 * idx + 0.1}s`,
-              }}
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ")
-                  navigate(`/lessons/${lesson.id}`);
-              }}
-              aria-label={`Open lesson ${lesson.name}`}
-            >
-              <style>{`
-                @keyframes fadeInUp {
-                  0% { opacity: 0; transform: translateY(40px); }
-                  100% { opacity: 1; transform: translateY(0); }
-                }
-              `}</style>
-
-              <img
-                src={lesson.image}
-                alt={lesson.name}
-                style={{
-                  width: "100%",
-                  height: 160,
-                  borderRadius: 16,
-                  objectFit: "cover",
-                  marginBottom: 12,
-                  boxShadow: dark ? "0 1px 6px #0004" : "0 1px 6px #0001",
-                }}
-                draggable={false}
-              />
+            {/* Completed Badge */}
+            {isCompleted && (
               <div
                 style={{
+                  position: "absolute",
+                  top: 12,
+                  right: 12,
+                  background: "#4caf50",
+                  color: "#fff",
                   fontWeight: 700,
-                  fontSize: 18,
-                  marginBottom: 10,
-                  marginTop: 10,
-                  color: textColor,
-                  fontFamily: "Lato, Arial, sans-serif",
+                  fontSize: 12,
+                  padding: "4px 8px",
+                  borderRadius: 12,
+                  zIndex: 2,
                 }}
               >
-                {lesson.name}
+                Completed
               </div>
-              <div
-                style={{
-                  fontSize: 14,
-                  color: textColor,
-                  opacity: 0.7,
-                  fontFamily: "Lato, Arial, sans-serif",
-                  fontWeight: 300,
-                  lineHeight: 1.4,
-                }}
-              >
-                {lesson.description}
-              </div>
-            </div>
-          </Grid>
-        ))}
-
-        {filtered.length === 0 && (
-          <Grid size={{ xs: 12 }}>
+            )}
+            {/* Lesson Image */}
+            <img
+              src={lesson.image}
+              alt={lesson.name}
+              style={{
+                width: "100%",
+                height: 160,
+                borderRadius: 16,
+                objectFit: "cover",
+                marginBottom: 12,
+                boxShadow: dark ? "0 1px 6px #0004" : "0 1px 6px #0001",
+              }}
+              draggable={false}
+            />
+            {/* Name & Description */}
             <div
               style={{
-                color: noLessonColor,
-                fontSize: 20,
-                textAlign: "center",
+                fontWeight: 700,
+                fontSize: 18,
+                marginBottom: 10,
+                color: dark ? "#f8f5f0" : "#23283a",
+                fontFamily: "Lato, Arial, sans-serif",
               }}
             >
-              No lessons found.
+              {lesson.name}
             </div>
-          </Grid>
-        )}
-      </Grid>
-    </div>
+            <div
+              style={{
+                fontSize: 14,
+                color: dark ? "#f8f5f0" : "#23283a",
+                opacity: 0.7,
+                fontFamily: "Lato, Arial, sans-serif",
+                fontWeight: 300,
+                lineHeight: 1.4,
+              }}
+            >
+              {lesson.description}
+            </div>
+            {/* Buttons */}
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                marginTop: 18,
+                width: "100%",
+              }}
+            >
+              <button
+                style={{
+                  flex: 1,
+                  padding: "8px 0",
+                  borderRadius: 10,
+                  border: "none",
+                  background: "#fff",
+                  color: "#7c4dff",
+                  fontWeight: 800,
+                  fontSize: 15,
+                  boxShadow: "0 2px 8px #7c4dff22",
+                  cursor: "pointer",
+                  outline: "none",
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setInfoOpen(lesson.id);
+                }}
+              >
+                Info
+              </button>
+              <Popup
+                open={infoOpen === lesson.id}
+                onClose={() => setInfoOpen(null)}
+                modal
+                nested
+                overlayStyle={{
+                  background: "rgba(0,0,0,0.4)",
+                  backdropFilter: "blur(3px)",
+                }}
+              >
+                <div
+                  style={{
+                    background: dark ? "#23283a" : "#fff",
+                    color: dark ? "#fff" : "#23283a",
+                    borderRadius: 20,
+                    boxShadow: "0 8px 40px #000a",
+                    padding: "32px 28px",
+                    minWidth: 200,
+                    maxWidth: 400,
+                    width: "90vw",
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 20,
+                  }}
+                >
+                  <button
+                    onClick={() => setInfoOpen(null)}
+                    style={{
+                      position: "absolute",
+                      top: 18,
+                      right: 18,
+                      background: "none",
+                      border: "none",
+                      color: dark ? "#fff" : "#23283a",
+                      fontSize: 22,
+                      cursor: "pointer",
+                      fontWeight: 700,
+                    }}
+                  >
+                    ×
+                  </button>
+                  {/* Row 1: Image + description */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: 20,
+                    }}
+                  >
+                    <img
+                      src={lesson.image}
+                      alt={lesson.name}
+                      style={{
+                        width: 140,
+                        height: 140,
+                        objectFit: "cover",
+                        borderRadius: 12,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h2
+                        style={{
+                          fontWeight: 900,
+                          fontSize: 26,
+                          margin: "0 0 8px 0",
+                          fontFamily: "Lato, Arial, sans-serif",
+                        }}
+                      >
+                        {lesson.name}
+                      </h2>
+                      <div
+                        style={{
+                          display: "inline-block",
+                          padding: "6px 14px",
+                          borderRadius: "20px",
+                          fontWeight: 700,
+                          fontSize: 14,
+                          fontFamily: "Lato, Arial, sans-serif",
+                          background:
+                            lesson.level === "Beginner"
+                              ? "linear-gradient(90deg,#4caf50,#81c784)"
+                              : lesson.level === "Intermediate"
+                              ? "linear-gradient(90deg,#ff9800,#ffc107)"
+                              : "linear-gradient(90deg,#7c4dff,#3f51b5)",
+                          color: "#fff",
+                          boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
+                          marginBottom: 12,
+                        }}
+                      >
+                        {lesson.level}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 15,
+                          fontFamily: "Lato, Arial, sans-serif",
+                        }}
+                      >
+                        {lesson.description}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Row 2: Topics */}
+                  <div>
+                    <div
+                      style={{
+                        fontWeight: 800,
+                        fontSize: 16,
+                        marginBottom: 6,
+                        fontFamily: "Lato, Arial, sans-serif",
+                      }}
+                    >
+                      What you can learn
+                    </div>
+                    <ul
+                      style={{
+                        margin: 0,
+                        paddingLeft: 18,
+                        fontSize: 15,
+                        fontFamily: "Lato, Arial, sans-serif",
+                      }}
+                    >
+                      {(lessonTopics[lesson.id] || []).map((topic) => (
+                        <li key={topic.id} style={{ marginBottom: 4 }}>
+                          {topic.label}
+                          {topic.subtopics && (
+                            <ul
+                              style={{
+                                margin: 0,
+                                paddingLeft: 16,
+                                fontSize: 14,
+                                color: dark ? "#b3b3c6" : "#555",
+                              }}
+                            >
+                              {topic.subtopics.map((sub) => (
+                                <li key={sub.id}>{sub.label}</li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </Popup>
+              <button
+                style={{
+                  flex: 1,
+                  padding: "8px 0",
+                  borderRadius: 10,
+                  border: "none",
+                  background: "#b6a4e7",
+                  color: "#fff",
+                  fontWeight: 900,
+                  fontSize: 15,
+                  boxShadow: "2px 2px 2px #6a6666",
+                  cursor: "pointer",
+                  outline: "none",
+                }}
+                onClick={onSelect}
+              >
+                Start
+              </button>
+            </div>
+          </div>
+        );
+      }}
+    />
   );
+}
+
+// QuizzesList: shows quizzes using LessonQuizTemplate (example, can be used elsewhere)
+// import { quizzes } from "../utils/quizList"; // Example quizzes array
+// function QuizzesList({ dark }) {
+//   return (
+//     <LessonQuizTemplate
+//       items={quizzes}
+//       title="Available Quizzes"
+//       searchPlaceholder="Search quizzes..."
+//       dark={dark}
+//       onItemSelect={(quiz) => { /* handle quiz select */ }}
+//       renderItem={(quiz, { dark, isMobile, onSelect }) => (
+//         <div onClick={onSelect} style={{ cursor: "pointer" }}>
+//           <Card
+//             gifSrc={quiz.gifSrc}
+//             title={quiz.title}
+//             description={quiz.description}
+//             dark={dark}
+//           />
+//         </div>
+//       )}
+//     />
+//   );
+// }
+
+// Main LessonsPage just renders LessonsList
+function LessonsPage({ dark, onLessonSelect }: LessonsPageProps) {
+  return <LessonsList dark={dark} onLessonSelect={onLessonSelect} />;
 }
 
 export default LessonsPage;
