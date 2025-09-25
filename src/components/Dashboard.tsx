@@ -368,7 +368,7 @@ function Dashboard({ dark }: DashboardProps) {
                       stroke="#fff"
                       strokeWidth={2}
                     >
-                      {lessonPieData.map((entry, idx) => (
+                      {lessonPieData.map((_, idx) => (
                         <Cell
                           key={`cell-${idx}`}
                           fill={lessonPieColors[idx % lessonPieColors.length]}
