@@ -67,3 +67,34 @@ export default defineConfig([
   },
 ])
 ```
+
+
+## Deployment
+
+This project is ready for production deployment.
+
+### Build for Production
+
+Run:
+
+```bash
+npm run build
+```
+
+The output will be in the `dist/` folder.
+
+### Deploying
+
+You can deploy the contents of the `dist/` folder to any static hosting provider, such as:
+
+- Vercel
+- Netlify
+- GitHub Pages
+- Firebase Hosting
+- Azure Static Web Apps
+
+For Vercel/Netlify, simply connect your repository and set the build command to `npm run build` and the output directory to `dist`.
+
+For manual deployment, upload the `dist/` folder contents to your static server.
+
+---
