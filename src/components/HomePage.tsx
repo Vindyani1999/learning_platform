@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import HomeSidebar from "./HomeSidebar";
 import FancyCheckbox from "./FancyToggle";
@@ -8,13 +7,15 @@ import Achivements from "./Achivements";
 import { LessonContentPage } from "./LessonContentPage";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import Quiz from "./Quiz";
+import { useTheme } from "../ThemeContext";
 
 export default function HomePage() {
-  const [dark, setDark] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const dark = theme === "dark";
   const navigate = useNavigate();
   const location = useLocation();
 
-  const onToggleTheme = () => setDark((d) => !d);
+  const onToggleTheme = () => setTheme(theme === "light" ? "dark" : "light");
 
   // Handler for selecting a lesson from LessonsPage
   const handleLessonSelect = (lessonId: string) => {

@@ -4,11 +4,14 @@ import "./main.css";
 
 import App from "./App.tsx";
 import { LoadingProvider } from "./LoadingContext";
+import { ThemeProvider } from "./ThemeContext";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <LoadingProvider>
-      <App />
-    </LoadingProvider>
+    <ThemeProvider>
+      <LoadingProvider>
+        <App />
+      </LoadingProvider>
+    </ThemeProvider>
   </StrictMode>
 );

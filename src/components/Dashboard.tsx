@@ -374,15 +374,21 @@ const NoProgress = ({ dark }: any) => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
+        position: "absolute",
+        left: "0%",
+        top: "15%",
       }}
     >
       <img
         src="/Progress.png"
         alt="No Progress yet"
         style={{
+          // display: "block",
           width: "30%",
           objectFit: "contain",
-          marginBottom: 24,
+          marginBottom: "1%",
+          marginLeft: "auto",
+          marginRight: "auto",
           opacity: fadedOpacity,
           filter: dark ? "brightness(0.8)" : "none",
         }}
