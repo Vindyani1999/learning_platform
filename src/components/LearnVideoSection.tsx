@@ -57,6 +57,7 @@ function LearnVideoSection() {
               borderRadius: isMobile ? 12 : 24,
               //   boxShadow: isMobile ? "0 2px 12px #0002" : "0 4px 32px #0002",
             }}
+            preload="none"
           >
             <source src="/learn.webm" type="video/webm" />
           </video>

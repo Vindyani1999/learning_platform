@@ -199,7 +199,7 @@
 
 //   return (
 //     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-//       <img src="/Progress.png" alt="No Progress yet" style={{ width: "30%", objectFit: "contain", marginBottom: 24, opacity: fadedOpacity, filter: dark ? "brightness(0.8)" : "none" }} />
+//       <img src="/Progress.png" alt="No Progress yet" loading="lazy" style={{ width: "30%", objectFit: "contain", marginBottom: 24, opacity: fadedOpacity, filter: dark ? "brightness(0.8)" : "none" }} />
 //       <h3 style={{ fontWeight: 700, fontSize: 20, marginBottom: 10, color: textColor, fontFamily: "'Lato', Arial, sans-serif", opacity: 0.8 }}>Nothing to Show</h3>
 //       <div style={{ color: fadedText, fontSize: 16, maxWidth: 260, margin: "0 auto", fontFamily: "'Lato', Arial, sans-serif", opacity: fadedOpacity }}>
 //         Start learning to see your progress here!

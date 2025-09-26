@@ -1,10 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
+import { useLoading } from "../LoadingContext";
 import { useIsMobile } from "../utils/useIsMobile";
 
 function HeroSection() {
   const isMobile = useIsMobile();
+  const { setLoading } = useLoading();
+  const loadedCount = useRef(0);
+
+  // Call this when a resource is loaded
+  const handleResourceLoaded = useCallback(() => {
+    loadedCount.current += 1;
+    // 2 videos + 1 spline = 3
+    if (loadedCount.current >= 3) {
+      setLoading(false);
+    }
+  }, [setLoading]);
 
   useEffect(() => {
+    setLoading(true);
     // Load spline script once
     if (!document.getElementById("spline-script")) {
       const script = document.createElement("script");
@@ -14,7 +27,13 @@ function HeroSection() {
       script.id = "spline-script";
       document.body.appendChild(script);
     }
-  }, []);
+    // Listen for Spline viewer load event
+    const handleSplineLoad = () => handleResourceLoaded();
+    window.addEventListener("spline-viewer-loaded", handleSplineLoad);
+    return () => {
+      window.removeEventListener("spline-viewer-loaded", handleSplineLoad);
+    };
+  }, [setLoading, handleResourceLoaded]);
 
   return (
     <div>
@@ -44,6 +63,8 @@ function HeroSection() {
             zIndex: -2,
             filter: "blur(2px) brightness(0.3)",
           }}
+          preload="none"
+          onLoadedData={handleResourceLoaded}
         >
           <source src="/hero.mp4" type="video/mp4" />
         </video>
@@ -54,6 +75,7 @@ function HeroSection() {
           loop
           muted
           playsInline
+          preload="none"
           style={{
             position: "absolute",
             top: 0,
@@ -64,6 +86,7 @@ function HeroSection() {
             opacity: 0.3,
             zIndex: -1,
           }}
+          onLoadedData={handleResourceLoaded}
         >
           <source src="/space.mp4" type="video/mp4" />
         </video>
@@ -77,8 +100,7 @@ function HeroSection() {
             width: "100%",
             height: "100%",
             zIndex: 10,
-
-            filter: " brightness(0.8)", // keep it above videos but below text
+            filter: " brightness(0.8)",
           }}
         >
           <spline-viewer
