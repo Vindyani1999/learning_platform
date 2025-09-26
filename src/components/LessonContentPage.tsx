@@ -1,11 +1,14 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
+import { startLesson } from "../redux/lessonProgressSlice";
 import ProgressBar from "./ProgressBar";
 import { LessonLayout } from "./LessonLayout";
 import { LessonSidebar } from "./LessonSidebar";
 import type { Topic } from "./LessonSidebar";
 import { lessonTopics } from "../utils/lessonTopics";
 import { lessonContents, type ContentBlock } from "../utils/lessonContents";
+import { completeLesson } from "../redux/lessonProgressSlice";
 
 interface LessonContentPageProps {
   dark: boolean;
@@ -18,6 +21,7 @@ export function LessonContentPage({
 }: LessonContentPageProps) {
   const params = useParams<{ lessonId: string }>();
   const lessonId = propLessonId || params.lessonId;
+  const dispatch = useDispatch();
   const topics: Topic[] = lessonTopics[lessonId!] || [];
   const navigate = useNavigate();
 
@@ -36,14 +40,8 @@ export function LessonContentPage({
     defaultSub
   );
 
-  // Progress tracking
+  // Progress tracking (Redux only)
   const [readItems, setReadItems] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (!lessonId) return;
-    const stored = localStorage.getItem(`progress_${lessonId}`);
-    if (stored) setReadItems(JSON.parse(stored));
-  }, [lessonId]);
 
   useEffect(() => {
     if (!lessonId) return;
@@ -53,9 +51,10 @@ export function LessonContentPage({
     if (!readItems.includes(id)) {
       const updated = [...readItems, id];
       setReadItems(updated);
-      localStorage.setItem(`progress_${lessonId}`, JSON.stringify(updated));
+      // Dispatch Redux action to mark lesson as started
+      dispatch(startLesson(lessonId));
     }
-  }, [selectedTopic, selectedSubtopic]);
+  }, [selectedTopic, selectedSubtopic, lessonId, dispatch, readItems]);
 
   useEffect(() => {
     if (!topics.length) return;
@@ -91,35 +90,7 @@ export function LessonContentPage({
 
   const handleMarkComplete = () => {
     if (!lessonId) return;
-
-    // Remove from startedLessons
-    const startedRaw = localStorage.getItem("startedLessons");
-    let started: string[] = [];
-    try {
-      started = startedRaw ? JSON.parse(startedRaw) : [];
-      if (!Array.isArray(started)) started = [];
-    } catch {
-      started = [];
-    }
-
-    started = started.filter((id) => id === String(id) && id !== lessonId); // ensure string comparison
-    localStorage.setItem("startedLessons", JSON.stringify(started));
-
-    // Add to completedLessons
-    const completedRaw = localStorage.getItem("completedLessons");
-    let completed: string[] = [];
-    try {
-      completed = completedRaw ? JSON.parse(completedRaw) : [];
-      if (!Array.isArray(completed)) completed = [];
-    } catch {
-      completed = [];
-    }
-
-    if (!completed.includes(lessonId)) {
-      completed.push(lessonId);
-      localStorage.setItem("completedLessons", JSON.stringify(completed));
-    }
-
+    dispatch(completeLesson(lessonId));
     navigate("/home/dashboard");
   };
 

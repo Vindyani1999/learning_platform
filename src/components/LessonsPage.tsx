@@ -5,6 +5,9 @@ import LessonQuizTemplate from "./LessonQuizTemplate";
 import Popup from "reactjs-popup";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { startLesson } from "../redux/lessonProgressSlice";
+import type { RootState } from "../redux/store";
 
 interface LessonsPageProps {
   dark: boolean;
@@ -15,10 +18,9 @@ interface LessonsPageProps {
 function LessonsList({ dark, onLessonSelect }: LessonsPageProps) {
   const navigate = useNavigate();
   const [infoOpen, setInfoOpen] = useState<string | null>(null);
-  // Completed lesson IDs
-  const completedIds: string[] = JSON.parse(
-    localStorage.getItem("completedLessons") || "[]"
-  ).map((l: any) => (typeof l === "string" ? l : l.id));
+  // Completed lesson IDs from Redux
+  const completedIds = useSelector((state: RootState) => state.lessonProgress.completedLessons);
+  const dispatch = useDispatch();
 
   return (
     <LessonQuizTemplate
@@ -27,33 +29,7 @@ function LessonsList({ dark, onLessonSelect }: LessonsPageProps) {
       searchPlaceholder="Search lessons..."
       dark={dark}
       onItemSelect={(lesson) => {
-        localStorage.setItem(
-          "currentLesson",
-          JSON.stringify({
-            id: lesson.id,
-            name: lesson.name,
-            image: lesson.image,
-            description: lesson.description,
-            level: lesson.level,
-          })
-        );
-        const startedRaw = localStorage.getItem("startedLessons");
-        let startedArr = [];
-        try {
-          startedArr = startedRaw ? JSON.parse(startedRaw) : [];
-        } catch {
-          startedArr = [];
-        }
-        if (!startedArr.some((l: any) => l.id === lesson.id)) {
-          startedArr.push({
-            id: lesson.id,
-            name: lesson.name,
-            image: lesson.image,
-            description: lesson.description,
-            level: lesson.level,
-          });
-          localStorage.setItem("startedLessons", JSON.stringify(startedArr));
-        }
+        dispatch(startLesson(lesson.id));
         if (onLessonSelect) {
           onLessonSelect(lesson.id);
         } else {

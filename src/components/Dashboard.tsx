@@ -7,14 +7,11 @@ import {
   Pie,
   Cell,
   Tooltip,
-  // BarChart,
-  // Bar,
-  // XAxis,
-  // YAxis,
-  // CartesianGrid,
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
 import { QuizDashboardSummary } from "./QuizDashboardSummery";
 
 interface DashboardProps {
@@ -25,13 +22,21 @@ function Dashboard({ dark }: DashboardProps) {
   const textColor = dark ? "#f8f5f0" : "#23283a";
   // const fadedText = dark ? "#b3b3c6" : "#666";
 
-  let startedLessons = [];
-  try {
-    const stored = localStorage.getItem("startedLessons");
-    if (stored) startedLessons = JSON.parse(stored);
-  } catch {
-    // ignore
-  }
+  // Redux selectors for lesson progress
+  const startedLessonsIds = useSelector(
+    (state: RootState) => state.lessonProgress.startedLessons
+  );
+  const completedLessonsIds = useSelector(
+    (state: RootState) => state.lessonProgress.completedLessons
+  );
+
+  // Map lesson IDs to lesson objects
+  const startedLessons = startedLessonsIds
+    .map((id) => lessonList.find((l) => l.id === id))
+    .filter(Boolean);
+  const completedLessons = completedLessonsIds
+    .map((id) => lessonList.find((l) => l.id === id))
+    .filter(Boolean);
 
   let completedQuizzes: Record<
     string,
@@ -43,24 +48,7 @@ function Dashboard({ dark }: DashboardProps) {
   } catch {
     // ignore
   }
-
   const hasQuizzes = Object.keys(completedQuizzes).length > 0;
-
-  const completedIds: string[] = JSON.parse(
-    localStorage.getItem("completedLessons") || "[]"
-  );
-  const completedLessons = completedIds.map((id) => {
-    const lesson = lessonList.find((l) => l.id === id);
-    return (
-      lesson || {
-        id,
-        name: "Unknown",
-        image: "",
-        description: "",
-        level: "Beginner",
-      }
-    );
-  });
 
   const hasCourses = startedLessons.length > 0 || completedLessons.length > 0;
 
@@ -73,7 +61,6 @@ function Dashboard({ dark }: DashboardProps) {
 
   // let quizBarData: string | any[] | undefined = [];
   try {
-    // const progressRaw = localStorage.getItem("quizProgress");
     // const progress = progressRaw ? JSON.parse(progressRaw) : {};
     // quizBarData = Object.entries(progress).map(([key, val]: any) => ({
     //   name: key.charAt(0).toUpperCase() + key.slice(1),
@@ -277,14 +264,6 @@ const LessonList = ({ lessons, dark }: any) => (
           ? t.subtopics.forEach((s: any) => allIds.push(`${t.id}__${s.id}`))
           : allIds.push(t.id)
       );
-
-      // let readItems: string[] = [];
-      // try {
-      //   const stored = localStorage.getItem(`progress_${lesson.id}`);
-      //   if (stored) readItems = JSON.parse(stored);
-      // } catch {
-      //   // ignore
-      // }
 
       // const percent = completed
       //   ? 100
