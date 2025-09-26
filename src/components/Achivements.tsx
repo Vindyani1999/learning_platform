@@ -2,61 +2,30 @@ interface AchivementsProps {
   dark: boolean;
 }
 
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
+
 function Achivements({ dark }: AchivementsProps) {
   // theme colors
   const textColor = dark ? "#f8f5f0" : "#23283a";
   const fadedText = dark ? "#b3b3c6" : "#666";
-  // const fadedOpacity = 0.5; // removed unused
 
-  // Get completed lessons from localStorage
-  let completed: { id: string }[] = [];
-  try {
-    const completedRaw = localStorage.getItem("completedLessons");
-    completed = completedRaw ? JSON.parse(completedRaw) : [];
-    if (!Array.isArray(completed)) completed = [];
-  } catch {
-    completed = [];
-  }
-  const completedCount = completed.length;
+  // Get completed and started lessons from Redux
+  const completedLessons = useSelector((state: RootState) => state.lessonProgress.completedLessons);
+  const startedLessons = useSelector((state: RootState) => state.lessonProgress.startedLessons);
+  const completedCount = completedLessons.length;
 
-  // Get streak from localStorage (assume streak is stored as a number in 'lessonStreak')
-  let streak = 0;
-  try {
-    const streakRaw = localStorage.getItem("lessonStreak");
-    streak = streakRaw ? parseInt(streakRaw) : 0;
-    if (isNaN(streak)) streak = 0;
-  } catch {
-    streak = 0;
-  }
+  // Streak: if you have a streak feature in Redux, use it here. Otherwise, set to 0.
+  // TODO: Replace with actual streak from Redux if available
+  const streak = 0;
 
-  // Quiz achievements logic (from quizProgress)
-  let quizAttempts = 0;
-  let quizHighScore = 0;
-  let quizPerfect = false;
-  try {
-    const progressRaw = localStorage.getItem("quizProgress");
-    let progress: Record<
-      string,
-      { score: number; total: number; date: string }
-    > = {};
-    if (progressRaw) progress = JSON.parse(progressRaw);
-    const scores = Object.values(progress).map((q) => q.score);
-    quizAttempts = scores.length;
-    quizHighScore = scores.length > 0 ? Math.max(...scores) : 0;
-    quizPerfect = Object.values(progress).some(
-      (q) => q.score === q.total && q.total > 0
-    );
-  } catch {
-    // ignore
-  }
-  let startedLessons: { id: string }[] = [];
-  try {
-    const startedRaw = localStorage.getItem("startedLessons");
-    startedLessons = startedRaw ? JSON.parse(startedRaw) : [];
-    if (!Array.isArray(startedLessons)) startedLessons = [];
-  } catch {
-    /* ignore */
-  }
+  // Quiz achievements from Redux
+  const quizProgress = useSelector((state: RootState) => state.quizProgress.quizProgress);
+  const quizEntries = Object.values(quizProgress);
+  const quizAttempts = quizEntries.length;
+  const quizHighScore = quizEntries.length > 0 ? Math.max(...quizEntries.map(q => q.score)) : 0;
+  const quizPerfect = quizEntries.some(q => q.score === q.total && q.total > 0);
+
   const explorer = completedCount + startedLessons.length >= 3;
 
   const achievements = [
