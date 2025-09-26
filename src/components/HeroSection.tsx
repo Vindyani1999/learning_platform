@@ -88,7 +88,7 @@ function HeroSection() {
           }}
           onLoadedData={handleResourceLoaded}
         >
-          <source src="/Space.mp4" type="video/mp4" />
+          <source src="/space.mp4" type="video/mp4" />
         </video>
 
         {/* Spline Viewer */}
