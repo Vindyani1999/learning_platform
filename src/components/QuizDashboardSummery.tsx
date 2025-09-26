@@ -1,26 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+//
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
 
 export function QuizDashboardSummary({ dark }: { dark: boolean }) {
-  let quizAttempts = 0;
-  let quizHighScore = 0;
-  let quizTotal = 0;
-  let hasQuizProgress = false;
-  try {
-    const progressRaw = localStorage.getItem("quizProgress");
-    if (progressRaw) {
-      const progress = JSON.parse(progressRaw);
-      hasQuizProgress = Object.keys(progress).length > 0;
-      if (hasQuizProgress) {
-        const scores = Object.values(progress).map((q: any) => q.score);
-        const totals = Object.values(progress).map((q: any) => q.total);
-        quizAttempts = scores.length;
-        quizHighScore = scores.length > 0 ? Math.max(...scores) : 0;
-        quizTotal = totals.reduce((acc: number, t: number) => acc + t, 0);
-      }
-    }
-  } catch {
-    // ignore
-  }
+  // Get quiz progress from Redux
+  const quizProgress = useSelector((state: RootState) => state.quizProgress.quizProgress);
+  const quizEntries = Object.values(quizProgress);
+  const quizAttempts = quizEntries.length;
+  const quizHighScore = quizEntries.length > 0 ? Math.max(...quizEntries.map(q => q.score)) : 0;
+  const quizTotal = quizEntries.reduce((acc, q) => acc + q.total, 0);
+  //
 
   // if (!hasQuizProgress) return null;
 

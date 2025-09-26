@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { markQuizComplete } from "../redux/quizProgressSlice";
+import type { RootState } from "../redux/store";
 import { reactQuiz } from "./data/ReactQuiz";
 import QuizUI from "./QuizUI";
 import LessonQuizTemplate from "./LessonQuizTemplate";
@@ -132,17 +135,11 @@ interface QuizProps {
 function Quiz({ dark = false }: QuizProps) {
   const [selectedQuiz, setSelectedQuiz] = useState<string | null>(null);
 
-  // Get quiz progress from localStorage
-  let quizProgress: Record<
-    string,
-    { score: number; total: number; date: string }
-  > = {};
-  try {
-    const raw = localStorage.getItem("quizProgress");
-    if (raw) quizProgress = JSON.parse(raw);
-  } catch {
-    // ignore
-  }
+  // Get quiz progress from Redux
+  const quizProgress = useSelector(
+    (state: RootState) => state.quizProgress.quizProgress
+  );
+  const dispatch = useDispatch();
 
   if (selectedQuiz) {
     const quiz = quizzes.find((q) => q.key === selectedQuiz);
@@ -181,7 +178,14 @@ function Quiz({ dark = false }: QuizProps) {
             justifyContent: "center",
           }}
         >
-          <QuizUI questions={quiz.questions} quizKey={quiz.key} dark={dark} />
+          <QuizUI
+            questions={quiz.questions}
+            quizKey={quiz.key}
+            dark={dark}
+            onComplete={(score: number, total: number) => {
+              dispatch(markQuizComplete({ quizId: quiz.key, score, total }));
+            }}
+          />
         </div>
       </div>
     );

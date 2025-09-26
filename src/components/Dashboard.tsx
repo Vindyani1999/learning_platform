@@ -11,6 +11,7 @@ import {
   Legend,
 } from "recharts";
 import { useSelector } from "react-redux";
+//
 import { useNavigate } from "react-router-dom";
 import type { RootState } from "../redux/store";
 import { QuizDashboardSummary } from "./QuizDashboardSummery";
@@ -39,17 +40,9 @@ function Dashboard({ dark }: DashboardProps) {
     .map((id) => lessonList.find((l) => l.id === id))
     .filter(Boolean);
 
-  let completedQuizzes: Record<
-    string,
-    { score: number; total: number; date: string }
-  > = {};
-  try {
-    const stored = localStorage.getItem("quizProgress");
-    if (stored) completedQuizzes = JSON.parse(stored);
-  } catch {
-    // ignore
-  }
-  const hasQuizzes = Object.keys(completedQuizzes).length > 0;
+  // Get quiz progress from Redux
+  const quizProgress = useSelector((state: RootState) => state.quizProgress.quizProgress);
+  const hasQuizzes = Object.keys(quizProgress).length > 0;
 
   const hasCourses = startedLessons.length > 0 || completedLessons.length > 0;
 

@@ -36,27 +36,9 @@ export default function QuizUI({
     } else {
       setShowResult(true);
       const finalScore = score;
-      // Save quiz progress to localStorage
-      if (quizKey) {
-        try {
-          const raw = localStorage.getItem("quizProgress");
-          let progress: Record<
-            string,
-            { score: number; total: number; date: string }
-          > = {};
-          if (raw) progress = JSON.parse(raw);
-          // Only update if new score is higher or not present
-          if (!progress[quizKey] || finalScore > progress[quizKey].score) {
-            progress[quizKey] = {
-              score: finalScore,
-              total: questions.length,
-              date: new Date().toISOString(),
-            };
-            localStorage.setItem("quizProgress", JSON.stringify(progress));
-          }
-        } catch {
-          // ignore
-        }
+      // Notify parent to mark quiz as complete in Redux
+      if (quizKey && onComplete) {
+        onComplete(finalScore, questions.length);
       }
       if (onComplete) onComplete(finalScore, questions.length);
     }

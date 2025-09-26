@@ -1,5 +1,11 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
+export interface QuizProgressEntry {
+  score: number;
+  total: number;
+  date: string;
+}
+
 export interface LessonProgressState {
   startedLessons: string[];
   completedLessons: string[];
@@ -44,6 +50,7 @@ const lessonProgressSlice = createSlice({
         state.lessonTopicProgress[lessonId].push(topicId);
       }
     },
+
     resetProgress(state) {
       state.startedLessons = [];
       state.completedLessons = [];
