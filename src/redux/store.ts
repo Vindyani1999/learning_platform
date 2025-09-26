@@ -4,7 +4,6 @@ import quizProgressReducer from "./quizProgressSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
-
 const lessonProgressPersistConfig = {
   key: "lessonProgress",
   storage,

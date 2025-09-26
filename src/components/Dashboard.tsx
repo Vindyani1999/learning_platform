@@ -41,7 +41,9 @@ function Dashboard({ dark }: DashboardProps) {
     .filter(Boolean);
 
   // Get quiz progress from Redux
-  const quizProgress = useSelector((state: RootState) => state.quizProgress.quizProgress);
+  const quizProgress = useSelector(
+    (state: RootState) => state.quizProgress.quizProgress
+  );
   const hasQuizzes = Object.keys(quizProgress).length > 0;
 
   const hasCourses = startedLessons.length > 0 || completedLessons.length > 0;

@@ -6,7 +6,6 @@ export interface QuizProgressEntry {
   date: string;
 }
 
-
 // Only completed/attempted quizzes are tracked. No 'in-progress' state is stored.
 export interface QuizProgressState {
   // quizId -> progress entry (only after completion/attempt)
@@ -24,7 +23,12 @@ const quizProgressSlice = createSlice({
     // Only call this when a quiz is completed/attempted
     markQuizComplete(
       state,
-      action: PayloadAction<{ quizId: string; score: number; total: number; date?: string }>
+      action: PayloadAction<{
+        quizId: string;
+        score: number;
+        total: number;
+        date?: string;
+      }>
     ) {
       const { quizId, score, total, date } = action.payload;
       state.quizProgress[quizId] = {
@@ -42,5 +46,6 @@ const quizProgressSlice = createSlice({
   },
 });
 
-export const { markQuizComplete, resetQuizProgress, setQuizProgress } = quizProgressSlice.actions;
+export const { markQuizComplete, resetQuizProgress, setQuizProgress } =
+  quizProgressSlice.actions;
 export default quizProgressSlice.reducer;

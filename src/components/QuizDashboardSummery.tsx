@@ -4,10 +4,13 @@ import type { RootState } from "../redux/store";
 
 export function QuizDashboardSummary({ dark }: { dark: boolean }) {
   // Get quiz progress from Redux
-  const quizProgress = useSelector((state: RootState) => state.quizProgress.quizProgress);
+  const quizProgress = useSelector(
+    (state: RootState) => state.quizProgress.quizProgress
+  );
   const quizEntries = Object.values(quizProgress);
   const quizAttempts = quizEntries.length;
-  const quizHighScore = quizEntries.length > 0 ? Math.max(...quizEntries.map(q => q.score)) : 0;
+  const quizHighScore =
+    quizEntries.length > 0 ? Math.max(...quizEntries.map((q) => q.score)) : 0;
   const quizTotal = quizEntries.reduce((acc, q) => acc + q.total, 0);
   //
 
