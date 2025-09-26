@@ -45,21 +45,21 @@ function CardSection() {
         >
           {/* Card 1 */}
           <Card
-            gifSrc="/card1.gif"
+            // gifSrc="/card1.gif"
             gifPreviewSrc="/card1.png"
             title="Inspires Creative Learning"
             description="LearnSpot uses interactive content and visuals to spark curiosity and make learning fun and memorable."
           />
 
           <Card
-            gifSrc="/card2.gif"
+            // gifSrc="/card2.gif"
             gifPreviewSrc="/card2.png"
             title="Gamified Experience"
             description="Earn badges, level up, and stay motivated while learning engaging and encourage friendly competition."
           />
 
           <Card
-            gifSrc="/card3.gif"
+            // gifSrc="/card3.gif"
             gifPreviewSrc="/card3.png"
             title="Track Your Progress"
             description="Personalized paths and progress tracking help learners advance faster and stay motivated on their journey."

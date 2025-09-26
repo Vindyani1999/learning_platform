@@ -10,8 +10,8 @@ interface CardProps {
 }
 
 export function Card({
-  icon,
-  gifSrc,
+  // icon,
+  // gifSrc,
   gifPreviewSrc,
   title,
   description,
@@ -60,23 +60,19 @@ export function Card({
           justifyContent: "center",
         }}
       >
-        {gifSrc && gifPreviewSrc ? (
-          <img
-            src={hovered ? gifSrc : gifPreviewSrc}
-            alt={title + " visual"}
-            style={{
-              marginTop: isMobile ? 2 : 4,
-              width: isMobile ? 90 : 120,
-              height: isMobile ? 90 : 120,
-              borderRadius: isMobile ? 10 : 16,
-              objectFit: "cover",
-              transition: "box-shadow 0.2s",
-            }}
-            draggable={false}
-          />
-        ) : (
-          icon
-        )}
+        <img
+          src={gifPreviewSrc}
+          alt={title + " visual"}
+          style={{
+            marginTop: isMobile ? 2 : 4,
+            width: isMobile ? 90 : 120,
+            height: isMobile ? 90 : 120,
+            borderRadius: isMobile ? 10 : 16,
+            objectFit: "cover",
+            transition: "box-shadow 0.2s",
+          }}
+          draggable={false}
+        />
       </div>
       <h3
         style={{

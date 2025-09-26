@@ -59,7 +59,7 @@ function LearnVideoSection() {
             }}
             preload="none"
           >
-            <source src="/learn.webm" type="video/webm" />
+            <source src="/LearnBy.mp4" type="video/webm" />
           </video>
         </div>
         {/* <svg

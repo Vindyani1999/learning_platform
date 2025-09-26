@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./Button";
 import { useIsMobile } from "../utils/useIsMobile";
+import { useNavigate } from "react-router-dom";
+import { useLoading } from "../LoadingContext";
 
 function ImageRight() {
   const [imgVisible, setImgVisible] = useState(false);
@@ -19,6 +21,17 @@ function ImageRight() {
     if (imgRef.current) observer.observe(imgRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const navigate = useNavigate();
+  const { setLoading } = useLoading();
+  const handleStartLearning = () => {
+    setLoading(true);
+    // Simulate loading, or you can use navigation events if needed
+    setTimeout(() => {
+      setLoading(false);
+      navigate("/home/dashboard");
+    }, 1200);
+  };
 
   return (
     <div>
@@ -91,9 +104,7 @@ function ImageRight() {
             </h2>
             <Button
               buttonTitle="Get Started"
-              onClick={() =>
-                window.scrollTo({ top: window.innerHeight, behavior: "smooth" })
-              }
+              onClick={handleStartLearning}
               style={{
                 position: "static",
                 marginTop: isMobile ? 12 : 20,

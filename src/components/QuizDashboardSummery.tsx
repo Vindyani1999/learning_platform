@@ -1,32 +1,28 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export function QuizDashboardSummary({ dark }: { dark: boolean }) {
   let quizAttempts = 0;
   let quizHighScore = 0;
-  //   let quizPerfect = false;
   let quizTotal = 0;
-  //   let quizSuccessRate = 0;
-  //   let quizErrorRate = 0;
+  let hasQuizProgress = false;
   try {
     const progressRaw = localStorage.getItem("quizProgress");
-    let progress: Record<
-      string,
-      { score: number; total: number; date: string }
-    > = {};
-    if (progressRaw) progress = JSON.parse(progressRaw);
-    const scores = Object.values(progress).map((q) => q.score);
-    const totals = Object.values(progress).map((q) => q.total);
-    quizAttempts = scores.length;
-    quizHighScore = scores.length > 0 ? Math.max(...scores) : 0;
-    // quizPerfect = Object.values(progress).some(
-    //   (q) => q.score === q.total && q.total > 0
-    // );
-    quizTotal = totals.reduce((acc, t) => acc + t, 0);
-    // const totalCorrect = scores.reduce((acc, s) => acc + s, 0);
-    // quizSuccessRate =
-    //   quizTotal > 0 ? Math.round((totalCorrect / quizTotal) * 100) : 0;
-    // quizErrorRate = quizTotal > 0 ? 100 - quizSuccessRate : 0;
+    if (progressRaw) {
+      const progress = JSON.parse(progressRaw);
+      hasQuizProgress = Object.keys(progress).length > 0;
+      if (hasQuizProgress) {
+        const scores = Object.values(progress).map((q: any) => q.score);
+        const totals = Object.values(progress).map((q: any) => q.total);
+        quizAttempts = scores.length;
+        quizHighScore = scores.length > 0 ? Math.max(...scores) : 0;
+        quizTotal = totals.reduce((acc: number, t: number) => acc + t, 0);
+      }
+    }
   } catch {
     // ignore
   }
+
+  // if (!hasQuizProgress) return null;
 
   const textColor = dark ? "#f8f5f0" : "#23283a";
   const fadedText = dark ? "#b3b3c6" : "#666";

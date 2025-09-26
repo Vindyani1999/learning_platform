@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "./Button";
 import { useIsMobile } from "../utils/useIsMobile";
 import { useNavigate } from "react-router-dom";
+import { useLoading } from "../LoadingContext";
 
 export function Navbar() {
   const [visible, setVisible] = useState(true);
@@ -15,6 +16,15 @@ export function Navbar() {
   }, []);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { setLoading } = useLoading();
+  const handleStartLearning = () => {
+    setLoading(true);
+    // Simulate loading, or you can use navigation events if needed
+    setTimeout(() => {
+      setLoading(false);
+      navigate("/home/dashboard");
+    }, 1200);
+  };
   return (
     <nav
       style={{
@@ -37,7 +47,7 @@ export function Navbar() {
       }}
     >
       <img
-        src="/logo.png"
+        src="/logoooo.png"
         alt="Logo"
         style={{
           height: isMobile ? 50 : 75,
@@ -49,7 +59,7 @@ export function Navbar() {
         role="button"
         aria-label="Go to home"
       />
-      <Button onClick={() => navigate("/home")} buttonTitle="Start Learning" />
+      <Button onClick={handleStartLearning} buttonTitle="Start Learning" />
     </nav>
   );
 }

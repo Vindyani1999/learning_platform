@@ -48,7 +48,7 @@ function HeroSection() {
         }}
       >
         {/* Video background */}
-        <video
+        {/* <video
           autoPlay
           loop
           muted
@@ -67,7 +67,7 @@ function HeroSection() {
           onLoadedData={handleResourceLoaded}
         >
           <source src="/hero.mp4" type="video/mp4" />
-        </video>
+        </video> */}
 
         {/* Space overlay */}
         <video
@@ -83,12 +83,12 @@ function HeroSection() {
             width: "100vw",
             height: isMobile ? "70vh" : "100vh",
             objectFit: "cover",
-            opacity: 0.3,
-            zIndex: -1,
+            filter: "brightness(0.3)",
+            zIndex: 1,
           }}
           onLoadedData={handleResourceLoaded}
         >
-          <source src="/space.mp4" type="video/mp4" />
+          <source src="/Space.mp4" type="video/mp4" />
         </video>
 
         {/* Spline Viewer */}
@@ -99,7 +99,7 @@ function HeroSection() {
             left: 0,
             width: "100%",
             height: "100%",
-            zIndex: 10,
+            zIndex: 15,
             filter: " brightness(0.8)",
           }}
         >

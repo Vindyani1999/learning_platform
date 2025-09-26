@@ -62,13 +62,17 @@ export const HomeSidebar: React.FC<HomeSidebarProps> = ({ dark }) => {
         src="/logoooo.png"
         alt="Logo"
         style={{
-          //   width: 40,
-          height: 120,
-          margin: "0 auto 24px auto",
-          display: "block",
-          borderRadius: 8,
+          width: "auto",
+          height: "18%",
+          cursor: "pointer",
+          pointerEvents: "auto",
         }}
+        onClick={() => navigate("/")}
+        tabIndex={0}
+        role="button"
+        aria-label="Go to home"
       />
+
       {navItems.map((item) => {
         const isActive = location.pathname.startsWith(item.path);
         return (
