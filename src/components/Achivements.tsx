@@ -11,8 +11,12 @@ function Achivements({ dark }: AchivementsProps) {
   const fadedText = dark ? "#b3b3c6" : "#666";
 
   // Get completed and started lessons from Redux
-  const completedLessons = useSelector((state: RootState) => state.lessonProgress.completedLessons);
-  const startedLessons = useSelector((state: RootState) => state.lessonProgress.startedLessons);
+  const completedLessons = useSelector(
+    (state: RootState) => state.lessonProgress.completedLessons
+  );
+  const startedLessons = useSelector(
+    (state: RootState) => state.lessonProgress.startedLessons
+  );
   const completedCount = completedLessons.length;
 
   // Streak: if you have a streak feature in Redux, use it here. Otherwise, set to 0.
@@ -20,11 +24,16 @@ function Achivements({ dark }: AchivementsProps) {
   const streak = 0;
 
   // Quiz achievements from Redux
-  const quizProgress = useSelector((state: RootState) => state.quizProgress.quizProgress);
+  const quizProgress = useSelector(
+    (state: RootState) => state.quizProgress.quizProgress
+  );
   const quizEntries = Object.values(quizProgress);
   const quizAttempts = quizEntries.length;
-  const quizHighScore = quizEntries.length > 0 ? Math.max(...quizEntries.map(q => q.score)) : 0;
-  const quizPerfect = quizEntries.some(q => q.score === q.total && q.total > 0);
+  const quizHighScore =
+    quizEntries.length > 0 ? Math.max(...quizEntries.map((q) => q.score)) : 0;
+  const quizPerfect = quizEntries.some(
+    (q) => q.score === q.total && q.total > 0
+  );
 
   const explorer = completedCount + startedLessons.length >= 3;
 
