@@ -11,6 +11,7 @@ import {
   Legend,
 } from "recharts";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import type { RootState } from "../redux/store";
 import { QuizDashboardSummary } from "./QuizDashboardSummery";
 
@@ -254,92 +255,164 @@ const Card = ({ children, dark, width }: any) => (
   </div>
 );
 
-const LessonList = ({ lessons, dark }: any) => (
-  <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-    {lessons.map((lesson: any) => {
-      const topics = lessonTopics[lesson.id] || [];
-      const allIds: string[] = [];
-      topics.forEach((t: any) =>
-        t.subtopics?.length
-          ? t.subtopics.forEach((s: any) => allIds.push(`${t.id}__${s.id}`))
-          : allIds.push(t.id)
-      );
+const LessonList = ({ lessons, dark, completed = false }: any) => {
+  const navigate = useNavigate();
+  // Get all readItems from Redux (simulate with empty for now, or connect to progress if tracked)
+  // For demo, you may want to connect to a per-lesson progress slice if available
+  // Here, we assume all progress is tracked in Redux or can be derived
+  // If you have per-lesson readItems in Redux, replace [] with the correct selector
+  // For now, we use completed=false for in-progress lessons only
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+      {lessons.map((lesson: any) => {
+        const topics = lessonTopics[lesson.id] || [];
+        const allIds: string[] = [];
+        topics.forEach((t: any) =>
+          t.subtopics?.length
+            ? t.subtopics.forEach((s: any) => allIds.push(`${t.id}__${s.id}`))
+            : allIds.push(t.id)
+        );
 
-      // const percent = completed
-      //   ? 100
-      //   : allIds.length > 0
-      //   ? Math.round((readItems.length / allIds.length) * 100)
-      //   : 0;
+        // For demo, simulate readItems as empty for completed=false, all for completed=true
+        // In a real app, get readItems from Redux for each lesson
+        let readItems: string[] = [];
+        if (completed) {
+          readItems = allIds;
+        } else {
+          // TODO: Replace with actual per-lesson progress from Redux
+          // readItems = useSelector(...)
+          // For now, just simulate 0 progress
+          readItems = [];
+        }
 
-      return (
-        <div
-          key={lesson.id}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            background: dark
-              ? "linear-gradient(135deg, #23283a 60%, #2d3650 100%)"
-              : "linear-gradient(135deg, #f5f8ff 60%, #e3eaff 100%)",
-            borderRadius: 22,
-            boxShadow: dark
-              ? "0 8px 32px #000a, 0 1.5px 0 #fff2"
-              : "0 8px 32px #bcd6ff44, 0 1.5px 0 #0001",
-            padding: 10,
-            minHeight: "5vh",
-          }}
-        >
-          <img
-            src={lesson.image}
-            alt={lesson.name}
+        // const percent =
+        //   allIds.length > 0
+        //     ? Math.round((readItems.length / allIds.length) * 100)
+        //     : 0;
+        const pieData = [
+          { name: "Done", value: readItems.length },
+          { name: "Left", value: allIds.length - readItems.length },
+        ];
+        const pieColors = ["#28a745", "#7c4dff"];
+
+        // Find next uncompleted topic
+        const nextIdx = readItems.length;
+        const nextId = allIds[nextIdx] || allIds[0];
+        const [nextTopic, nextSub] = nextId ? nextId.split("__") : [null, null];
+
+        return (
+          <div
+            key={lesson.id}
             style={{
-              width: "8%",
-              height: "auto",
-              objectFit: "cover",
-              borderRadius: 10,
-              marginRight: 24,
-              boxShadow: dark ? "0 1px 6px #0004" : "0 1px 6px #0001",
+              display: "flex",
+              alignItems: "center",
+              background: dark
+                ? "linear-gradient(135deg, #23283a 60%, #2d3650 100%)"
+                : "linear-gradient(135deg, #f5f8ff 60%, #e3eaff 100%)",
+              borderRadius: 22,
+              boxShadow: dark
+                ? "0 8px 32px #000a, 0 1.5px 0 #fff2"
+                : "0 8px 32px #bcd6ff44, 0 1.5px 0 #0001",
+              padding: 10,
+              minHeight: "5vh",
+              cursor: !completed ? "pointer" : undefined,
+              transition: "box-shadow 0.2s",
             }}
-          />
-          <div style={{ flex: 1, textAlign: "left" }}>
-            <div
+            onClick={() => {
+              if (!completed) {
+                // Navigate to next uncompleted topic/subtopic for this lesson
+                navigate(
+                  `/lessons/${lesson.id}?topic=${nextTopic || ""}&sub=${
+                    nextSub || ""
+                  }`
+                );
+              }
+            }}
+            title={!completed ? "Continue lesson" : undefined}
+          >
+            <img
+              src={lesson.image}
+              alt={lesson.name}
               style={{
-                fontWeight: 700,
-                fontSize: 16,
-                marginBottom: 4,
-                color: dark ? "#f8f5f0" : "#23283a",
-                fontFamily: "'Lato', Arial, sans-serif",
+                width: "8%",
+                height: "auto",
+                objectFit: "cover",
+                borderRadius: 10,
+                marginRight: 24,
+                boxShadow: dark ? "0 1px 6px #0004" : "0 1px 6px #0001",
               }}
-            >
-              {lesson.name}
+            />
+            <div style={{ flex: 1, textAlign: "left" }}>
+              <div
+                style={{
+                  fontWeight: 700,
+                  fontSize: 16,
+                  marginBottom: 4,
+                  color: dark ? "#f8f5f0" : "#23283a",
+                  fontFamily: "'Lato', Arial, sans-serif",
+                }}
+              >
+                {lesson.name}
+              </div>
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "4px 8px",
+                  borderRadius: "20px",
+                  fontWeight: 700,
+                  fontSize: 12,
+                  fontFamily: "Lato, Arial, sans-serif",
+                  background:
+                    lesson.level === "Beginner"
+                      ? "linear-gradient(90deg,#4caf50,#81c784)"
+                      : lesson.level === "Intermediate"
+                      ? "linear-gradient(90deg,#ff9800,#ffc107)"
+                      : "linear-gradient(90deg,#7c4dff,#3f51b5)",
+                  color: "#fff",
+                  boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
+                  marginBottom: 4,
+                }}
+              >
+                {lesson.level}
+              </div>
             </div>
-            <div
-              style={{
-                display: "inline-block",
-                padding: "4px 8px",
-                borderRadius: "20px",
-                fontWeight: 700,
-                fontSize: 12,
-                fontFamily: "Lato, Arial, sans-serif",
-                background:
-                  lesson.level === "Beginner"
-                    ? "linear-gradient(90deg,#4caf50,#81c784)"
-                    : lesson.level === "Intermediate"
-                    ? "linear-gradient(90deg,#ff9800,#ffc107)"
-                    : "linear-gradient(90deg,#7c4dff,#3f51b5)",
-                color: "#fff",
-                boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
-                marginBottom: 4,
-              }}
-            >
-              {lesson.level}
-            </div>
+            {/* Per-lesson progress pie */}
+            {!completed && (
+              <div style={{ width: 60, height: 60, marginLeft: 16 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={24}
+                      innerRadius={14}
+                      labelLine={false}
+                      stroke="#fff"
+                      strokeWidth={2}
+                    >
+                      {pieData.map((_, idx) => (
+                        <Cell
+                          key={`cell-${idx}`}
+                          fill={pieColors[idx % pieColors.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ borderRadius: 12, fontWeight: 600 }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
-          {/* {!completed && <PieProgress percent={percent} />} */}
-        </div>
-      );
-    })}
-  </div>
-);
+        );
+      })}
+    </div>
+  );
+};
 
 const NoProgress = ({ dark }: any) => {
   const textColor = dark ? "#f8f5f0" : "#23283a";

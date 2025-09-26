@@ -19,7 +19,9 @@ function LessonsList({ dark, onLessonSelect }: LessonsPageProps) {
   const navigate = useNavigate();
   const [infoOpen, setInfoOpen] = useState<string | null>(null);
   // Completed lesson IDs from Redux
-  const completedIds = useSelector((state: RootState) => state.lessonProgress.completedLessons);
+  const completedIds = useSelector(
+    (state: RootState) => state.lessonProgress.completedLessons
+  );
   const dispatch = useDispatch();
 
   return (
