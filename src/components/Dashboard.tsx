@@ -90,7 +90,7 @@ function Dashboard({ dark }: DashboardProps) {
         {/* Left: Lessons */}
         {hasCourses && (
           <div style={{ paddingRight: 16 }}>
-            <SectionTitle text="Your Courses" color={textColor} />
+            <SectionTitle text="Ongoing Courses" color={textColor} />
             <LessonList
               lessons={startedLessons}
               dark={dark}
@@ -101,7 +101,7 @@ function Dashboard({ dark }: DashboardProps) {
               color={textColor}
               style={{ marginTop: 32 }}
             />
-            <LessonList
+            <LessonListCompleted
               lessons={completedLessons}
               dark={dark}
               completed={true}
@@ -257,48 +257,36 @@ const Card = ({ children, dark, width }: any) => (
 
 const LessonList = ({ lessons, dark, completed = false }: any) => {
   const navigate = useNavigate();
-  // Get all readItems from Redux (simulate with empty for now, or connect to progress if tracked)
-  // For demo, you may want to connect to a per-lesson progress slice if available
-  // Here, we assume all progress is tracked in Redux or can be derived
-  // If you have per-lesson readItems in Redux, replace [] with the correct selector
-  // For now, we use completed=false for in-progress lessons only
+  // Get per-lesson progress from Redux
+  const lessonProgress = useSelector(
+    (state: RootState) => state.lessonProgress.lessonTopicProgress || {}
+  );
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {lessons.map((lesson: any) => {
         const topics = lessonTopics[lesson.id] || [];
         const allIds: string[] = [];
-        topics.forEach((t: any) =>
-          t.subtopics?.length
-            ? t.subtopics.forEach((s: any) => allIds.push(`${t.id}__${s.id}`))
-            : allIds.push(t.id)
-        );
+        topics.forEach((t: any) => {
+          allIds.push(t.id);
+        });
 
-        // For demo, simulate readItems as empty for completed=false, all for completed=true
-        // In a real app, get readItems from Redux for each lesson
+        // Get readItems from Redux for this lesson
         let readItems: string[] = [];
         if (completed) {
           readItems = allIds;
         } else {
-          // TODO: Replace with actual per-lesson progress from Redux
-          // readItems = useSelector(...)
-          // For now, just simulate 0 progress
-          readItems = [];
+          readItems = lessonProgress[lesson.id] || [];
         }
 
-        // const percent =
-        //   allIds.length > 0
-        //     ? Math.round((readItems.length / allIds.length) * 100)
-        //     : 0;
         const pieData = [
           { name: "Done", value: readItems.length },
           { name: "Left", value: allIds.length - readItems.length },
         ];
-        const pieColors = ["#28a745", "#7c4dff"];
+        const pieColors = ["#28a745", "transparent"];
 
         // Find next uncompleted topic
         const nextIdx = readItems.length;
-        const nextId = allIds[nextIdx] || allIds[0];
-        const [nextTopic, nextSub] = nextId ? nextId.split("__") : [null, null];
+        const nextTopic = allIds[nextIdx] || allIds[0];
 
         return (
           <div
@@ -320,12 +308,11 @@ const LessonList = ({ lessons, dark, completed = false }: any) => {
             }}
             onClick={() => {
               if (!completed) {
-                // Navigate to next uncompleted topic/subtopic for this lesson
-                navigate(
-                  `/lessons/${lesson.id}?topic=${nextTopic || ""}&sub=${
-                    nextSub || ""
-                  }`
-                );
+                // Navigate to next uncompleted topic for this lesson
+                const url = nextTopic
+                  ? `/home/lessons/${lesson.id}?topic=${nextTopic}`
+                  : `/home/lessons/${lesson.id}`;
+                navigate(url);
               }
             }}
             title={!completed ? "Continue lesson" : undefined}
@@ -407,6 +394,96 @@ const LessonList = ({ lessons, dark, completed = false }: any) => {
                 </ResponsiveContainer>
               </div>
             )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const LessonListCompleted = ({ lessons, dark }: any) => {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+        gap: 18,
+      }}
+    >
+      {lessons.map((lesson: any) => {
+        const topics = lessonTopics[lesson.id] || [];
+        const allIds: string[] = [];
+        topics.forEach((t: any) => {
+          allIds.push(t.id);
+        });
+
+        return (
+          <div
+            key={lesson.id}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              background: dark
+                ? "linear-gradient(135deg, #23283a 60%, #2d3650 100%)"
+                : "linear-gradient(135deg, #f5f8ff 60%, #e3eaff 100%)",
+              borderRadius: 18,
+              boxShadow: dark ? "0 4px 16px #0008" : "0 2px 8px #bcd6ff44",
+              padding: 12,
+              minHeight: 120,
+              width: 90,
+              transition: "box-shadow 0.2s",
+            }}
+          >
+            <img
+              src={lesson.image}
+              alt={lesson.name}
+              style={{
+                // width: 60,
+                height: 70,
+                objectFit: "cover",
+                borderRadius: 10,
+                marginBottom: 10,
+                boxShadow: dark ? "0 1px 6px #0004" : "0 1px 6px #0001",
+              }}
+            />
+            <div style={{ textAlign: "center", width: "100%" }}>
+              <div
+                style={{
+                  fontWeight: 700,
+                  fontSize: 15,
+                  marginBottom: 4,
+                  color: dark ? "#f8f5f0" : "#23283a",
+                  fontFamily: "'Lato', Arial, sans-serif",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {lesson.name}
+              </div>
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "2px 6px",
+                  borderRadius: "16px",
+                  fontWeight: 700,
+                  fontSize: 11,
+                  fontFamily: "Lato, Arial, sans-serif",
+                  background:
+                    lesson.level === "Beginner"
+                      ? "linear-gradient(90deg,#4caf50,#81c784)"
+                      : lesson.level === "Intermediate"
+                      ? "linear-gradient(90deg,#ff9800,#ffc107)"
+                      : "linear-gradient(90deg,#7c4dff,#3f51b5)",
+                  color: "#fff",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+                  marginBottom: 4,
+                }}
+              >
+                {lesson.level}
+              </div>
+            </div>
           </div>
         );
       })}

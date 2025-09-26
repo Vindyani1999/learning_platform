@@ -1,7 +1,8 @@
-import { useNavigate, useParams } from "react-router-dom";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
-import { startLesson } from "../redux/lessonProgressSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { startLesson, markTopicComplete } from "../redux/lessonProgressSlice";
 import ProgressBar from "./ProgressBar";
 import { LessonLayout } from "./LessonLayout";
 import { LessonSidebar } from "./LessonSidebar";
@@ -20,12 +21,26 @@ export function LessonContentPage({
   lessonId: propLessonId,
 }: LessonContentPageProps) {
   const params = useParams<{ lessonId: string }>();
+  const location = useLocation();
   const lessonId = propLessonId || params.lessonId;
   const dispatch = useDispatch();
   const topics: Topic[] = lessonTopics[lessonId!] || [];
   const navigate = useNavigate();
 
+  // Parse topic/sub from URL query params
+  function getQueryParams() {
+    const searchParams = new URLSearchParams(location.search);
+    const topic = searchParams.get("topic");
+    const sub = searchParams.get("sub");
+    return { topic, sub };
+  }
+
+  // Initialize selection from URL or default
   const getDefaultSelection = () => {
+    const { topic, sub } = getQueryParams();
+    if (topic) {
+      return { topic, sub: sub || undefined };
+    }
     if (!topics.length) return { topic: "", sub: undefined };
     const first = topics[0];
     if (first.subtopics?.length)
@@ -40,31 +55,52 @@ export function LessonContentPage({
     defaultSub
   );
 
-  // Progress tracking (Redux only)
-  const [readItems, setReadItems] = useState<string[]>([]);
+  // Redux: get per-lesson topic progress
+  const readItems: string[] = useSelector(
+    (state: any) => state.lessonProgress.lessonTopicProgress?.[lessonId!] || []
+  );
 
+  // Mark topic/subtopic as complete in Redux when visited
   useEffect(() => {
     if (!lessonId) return;
     const id = selectedSubtopic
       ? `${selectedTopic}__${selectedSubtopic}`
       : selectedTopic;
+    // Mark lesson as started
+    dispatch(startLesson(lessonId));
+    // Mark topic as complete in Redux
     if (!readItems.includes(id)) {
-      const updated = [...readItems, id];
-      setReadItems(updated);
-      // Dispatch Redux action to mark lesson as started
-      dispatch(startLesson(lessonId));
+      dispatch(markTopicComplete({ lessonId, topicId: id }));
     }
-  }, [selectedTopic, selectedSubtopic, lessonId, dispatch, readItems]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTopic, selectedSubtopic, lessonId, dispatch]);
 
+  // If topics change, or URL changes, sync selection
   useEffect(() => {
     if (!topics.length) return;
-    const exists = topics.some((t) => t.id === selectedTopic);
-    if (!exists) {
+    const { topic, sub } = getQueryParams();
+    if (topic && topics.some((t) => t.id === topic)) {
+      setSelectedTopic(topic);
+      setSelectedSubtopic(sub || undefined);
+    } else {
       const first = topics[0];
       setSelectedTopic(first.id);
       setSelectedSubtopic(first.subtopics?.[0]?.id);
     }
-  }, [topics, selectedTopic]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topics, location.search]);
+
+  // When selection changes, update the URL
+  useEffect(() => {
+    if (!lessonId) return;
+    const params = new URLSearchParams();
+    params.set("topic", selectedTopic);
+    if (selectedSubtopic) params.set("sub", selectedSubtopic);
+    navigate(`/home/lessons/${lessonId}?${params.toString()}`, {
+      replace: true,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTopic, selectedSubtopic, lessonId]);
 
   const currentTopic = topics.find((t) => t.id === selectedTopic);
   const currentSub = currentTopic?.subtopics?.find(
